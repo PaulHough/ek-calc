@@ -9,15 +9,17 @@ import cards
 
 def handle_simulation():
     player = Player(28)
-    card = cards.HeadlessHorseman(5)
     for _ in itertools.repeat(None, 3):
-        player.assign_card(card)
+        player.assign_card(cards.HeadlessHorseman(5))
 
-    demon = demons.DarkTitan()
     demon_player = demons.DemonPlayer()
-    demon_player.assign_card(demon)
+    demon_player.assign_card(demons.DarkTitan())
     fight = Fight(player, demon_player)
-    print(fight.results)
+
+    for turn in fight.results:
+        for j in turn:
+            print(j)
+            continue
 
 if __name__ == '__main__':
     handle_simulation()

@@ -2,12 +2,11 @@ from math import floor
 
 
 class Player():
-    cards = list()
-    card_order = list()
-
     def __init__(self, lvl=None):
         self.lvl = lvl
         self.hp = self._get_health()
+        self.cards = list()
+        self.card_order = list()
 
     def _get_health(self):
         bp = int(floor((self.lvl - 1)/10 + 1)*10)
@@ -27,7 +26,8 @@ class Player():
                 cost += 2
             else:
                 cost += 1
-        return cost
+        return 10000
+        # return cost
 
     def _num_of_cards_allowed(self):
         num_of_cards = 3
@@ -47,7 +47,7 @@ class Player():
             num_of_cards += 1
         return num_of_cards
 
-    def assign_card(self, card):
+    def assign_card(self, new_card):
         if len(self.cards) + 1 > self._num_of_cards_allowed():
             raise OverflowError('Too many cards for this level of player.')
         cost = 0
@@ -55,5 +55,7 @@ class Player():
             cost += card.cost
         if cost > self._num_of_cost_allowed():
             raise OverflowError('Cards cost too much for this level of player.')
-        self.cards.append(card)
+        self.cards.append(new_card)
 
+    def __repr__(self):
+        return 'Player Hero - Level: {}  HP: {}'.format(self.lvl, self.hp)

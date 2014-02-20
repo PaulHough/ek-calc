@@ -3,6 +3,7 @@ from sys import maxsize
 import constants
 import abilities
 from player import Player
+from cards import Card
 
 
 class DemonPlayer(Player):
@@ -12,15 +13,18 @@ class DemonPlayer(Player):
     def _num_of_cost_allowed(self):
         return 99
 
+    def _get_health(self):
+        return maxsize
 
-class Demon():
+    def __repr__(self):
+        return 'Demon Hero - Level: {}  HP: {}'.format(self.lvl, self.hp)
+
+
+class Demon(Card):
     def __init__(self):
-        self.rank = 10
-        self.hp = self._get_hp()
-        self.atk = self._get_atk()
+        super(Demon, self).__init__(lvl=10)
 
-    @staticmethod
-    def _get_hp():
+    def _get_hp(self):
         return maxsize
 
     def _get_atk(self):
@@ -32,9 +36,38 @@ class DarkTitan(Demon):
     stars = 5
     cost = 99
     wait = 4
-    abilities = (abilities.Retaliation(10), abilities.DevilsCurse(),
-                 abilities.Laceration(), abilities.Immunity())
 
     def _get_atk(self):
         return 1800
 
+    def get_abilities(self):
+        return (abilities.Retaliation(10), abilities.DevilsCurse(),
+                abilities.Laceration(), abilities.Immunity())
+
+    def handle_abilities_defense(self, dmg_summary):
+        if self.hp <= 0 or dmg_summary[constants.EFFECT_TYPE] in \
+                constants.IMMUNITY_EFFECT_TYPES:
+            return constants.NO_REFLECTED_DAMAGE
+        self.hp -= dmg_summary[constants.DAMAGE]
+        return abilities.Retaliation(10).get_effect()
+
+    def handle_abilities_offense(self):
+        dmg_summary = [
+            {
+                constants.EFFECT_TYPE: constants.ENEMY_HERO,
+                constants.DAMAGE: abilities.DevilsCurse().get_effect()
+            },
+            {
+                constants.EFFECT_TYPE: constants.ATTACK,
+                constants.DAMAGE: self._get_atk()
+            }
+        ]
+        return dmg_summary
+
+    def __str__(self):
+        return 'Dark Titan - Level: {}  HP: {}  ATK: {}  Wait: {}'.format(
+            self.lvl, self.hp, self.atk, self.wait)
+
+    def __repr__(self):
+        return 'Dark Titan - Level: {}  HP: {}  ATK: {}  Wait: {}'.format(
+            self.lvl, self.hp, self.atk, self.wait)

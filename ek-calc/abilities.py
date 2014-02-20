@@ -1,3 +1,5 @@
+import random
+
 import constants
 
 
@@ -34,7 +36,8 @@ class Concentration(Ability):
     def get_effect(self):
         base_atk = .2
         atk_inc = .2
-        return base_atk + atk_inc * self.rank
+        rand = random.choice([0, 1])
+        return (base_atk + atk_inc * self.rank) * rand
 
 
 class DevilsCurse(Ability):
@@ -60,7 +63,8 @@ class Dodge(Ability):
     def get_effect(self):
         base_dodge = .25
         dodge_inc = .05
-        return base_dodge + dodge_inc * self.rank
+        chance_to_dodge = base_dodge + dodge_inc * self.rank
+        return chance_to_dodge <= random.uniform(0, 1)
 
 
 class Immunity(Ability):
