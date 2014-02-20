@@ -1,0 +1,15 @@
+
+
+ATTACK = 'attack'
+CARD_MANIPULATION = 'card_manipulation'
+DAMAGE_MITIGATION = 'damage_mitigation'
+DAMAGE = 'damage'
+DEMON = 'demon'
+ENEMY = 'enemy'
+ENEMY_HERO = 'enemy_hero'
+HP = 'hp'
+IMMUNE = 'immune'
+MOUNTAIN = 'mountain'
+NO_HEALS = 'no_heals'
+OTHER = 'other'
+SELF = 'self'
