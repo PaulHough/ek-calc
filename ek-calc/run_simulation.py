@@ -10,10 +10,11 @@ import cards
 
 def multiple_simulations(cnt=1):
     dmg_done = 0
-    fight = None
+    dmg_per_min = 0
     for _ in itertools.repeat(None, cnt):
         fight = handle_simulation()
         dmg_done += fight.dmg_done
+        dmg_per_min += fight.dmg_per_min
 
         # for turn in fight.results:
         #     for j in turn:
@@ -21,13 +22,14 @@ def multiple_simulations(cnt=1):
         #         continue
 
     avg_dmg = dmg_done/count
+    avg_dmg_per_min = dmg_per_min / count
     print('Average Damage Done: {}'.format(int(avg_dmg)))
-    if fight is not None:
-        print('Damage Per Minute: {:.2f}'.format(fight.dmg_per_min))
+    print('Damage Per Minute: {:.2f}'.format(int(avg_dmg_per_min)))
 
 
 def handle_simulation():
-    player = Player(100)
+    player_level = 100
+    player = Player(player_level)
     player.assign_card(cards.HeadlessHorseman(10))
     player.assign_card(cards.HeadlessHorseman(10))
     player.assign_card(cards.HeadlessHorseman(10))
