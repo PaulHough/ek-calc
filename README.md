@@ -1,6 +1,8 @@
 ek-calc
 ====================
 
+Version .1.0
+
 Simulation calculator for the game Elemental Kingdoms by Arcannis.
 
 Requirements
@@ -11,9 +13,11 @@ Python 3.3+
 Install
 -----------------
 
-ek-calc is registered with PyPI and can be installed using `pip`.
+I have not yet packaged this project and registered it with PyPI - although I plan to in the future.  For now you'll need to clone the project and run the simulation manually.::
 
-    pip install ek-calc
+    $ git clone git@github.com:ricomoss/ek-calc.git
+    
+Or you can create your own fork to make code changes yourself.  If you plan to contribute to the project please fork and submit pull requests from a branch on your fork to the dev branch of this project.
 
 
 Releases and Branches
