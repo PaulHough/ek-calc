@@ -16,7 +16,16 @@ class Fight():
         self.player_in_play = list()
         self.enemy_in_play = list()
         self.player_turn = False
+        self.dmg_done = 0
+        self.dmg_per_min = 0
+        self.cooldown = self._calc_cooldown()
         self.sim_fight()
+
+    def _calc_cooldown(self):
+        deck_cost = 0
+        for card in self.player.cards:
+            deck_cost += card.cost
+        return (60 + 2 * deck_cost)/60
 
     def sim_fight(self):
         self._prep_cards()
@@ -45,10 +54,20 @@ class Fight():
             self.turn_results.extend(['\n\n'])
             self.results.append(self.turn_results)
 
+        self.fight_summary()
+
+    def fight_summary(self):
         winner = self.enemy
         if self.enemy.hp < self.player.hp:
             winner = self.player
-        self.results.append(['Winner: {}\n\n'.format(winner)])
+        self.dmg_done = self.enemy_in_play[0]._get_base_hp() - \
+                        self.enemy_in_play[0].hp
+        self.dmg_per_min = self.dmg_done / self.cooldown
+        self.results.append([
+            'Winner: {}'.format(winner),
+            'Total Damage to Card: {}'.format(self.dmg_done),
+            '\n\n'
+        ])
 
     def _handle_attack(self):
         if self.player_turn:

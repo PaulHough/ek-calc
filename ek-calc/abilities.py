@@ -22,7 +22,7 @@ class Backstab(Ability):
     def get_effect(self):
         base_dmg = 40
         dmg_inc = 40
-        return base_dmg + dmg_inc * self.rank
+        return base_dmg + dmg_inc * (self.rank - 1)
 
 
 class Concentration(Ability):
@@ -37,7 +37,7 @@ class Concentration(Ability):
         base_atk = .2
         atk_inc = .2
         rand = random.choice([0, 1])
-        return (base_atk + atk_inc * self.rank) * rand
+        return (base_atk + atk_inc * (self.rank - 1)) * rand
 
 
 class DevilsCurse(Ability):

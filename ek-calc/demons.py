@@ -1,5 +1,3 @@
-from sys import maxsize
-
 import constants
 import abilities
 from player import Player
@@ -7,14 +5,14 @@ from cards import Card
 
 
 class DemonPlayer(Player):
+    def __init__(self):
+        super(DemonPlayer, self).__init__(lvl=100)
+
     def _num_of_cards_allowed(self):
         return 1
 
     def _num_of_cost_allowed(self):
         return 99
-
-    def _get_health(self):
-        return maxsize
 
     def __repr__(self):
         return 'Demon Hero - Level: {}  HP: {}'.format(self.lvl, self.hp)
@@ -24,8 +22,8 @@ class Demon(Card):
     def __init__(self):
         super(Demon, self).__init__(lvl=10)
 
-    def _get_hp(self):
-        return maxsize
+    def _get_base_hp(self):
+        return 100000
 
     def _get_atk(self):
         raise NotImplementedError('This card must have an attack.')
@@ -39,10 +37,6 @@ class DarkTitan(Demon):
 
     def _get_atk(self):
         return 1800
-
-    def get_abilities(self):
-        return (abilities.Retaliation(10), abilities.DevilsCurse(),
-                abilities.Laceration(), abilities.Immunity())
 
     def handle_abilities_defense(self, dmg_summary):
         if self.hp <= 0 or dmg_summary[constants.EFFECT_TYPE] in \

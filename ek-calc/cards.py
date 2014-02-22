@@ -5,10 +5,10 @@ import constants
 class Card():
     def __init__(self, lvl=0):
         self.lvl = lvl
-        self.hp = self._get_hp()
+        self.hp = self._get_base_hp()
         self.atk = self._get_atk()
 
-    def _get_hp(self):
+    def _get_base_hp(self):
         raise NotImplementedError('This card must have health.')
 
     def _get_atk(self):
@@ -39,7 +39,7 @@ class HeadlessHorseman(Card):
     cost = 9
     first_attack = True
 
-    def _get_hp(self):
+    def _get_base_hp(self):
         base_hp = 590
         hp_inc = 8
         return base_hp + hp_inc * self.lvl
@@ -61,7 +61,7 @@ class HeadlessHorseman(Card):
                 dmg += abilities.Backstab(3).get_effect()
                 self.first_attack = False
         if self.lvl == 10:
-            dmg += abilities.Concentration(7).get_effect()
+            dmg += self._get_atk()*abilities.Concentration(7).get_effect()
         dmg_summary = {
             constants.EFFECT_TYPE: constants.ATTACK,
             constants.DAMAGE: dmg
