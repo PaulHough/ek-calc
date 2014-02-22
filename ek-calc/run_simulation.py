@@ -7,6 +7,8 @@ from simulator import Fight
 import demons
 import cards
 
+DEBUG = False
+
 
 def multiple_simulations(cnt=1):
     dmg_done = 0
@@ -16,10 +18,11 @@ def multiple_simulations(cnt=1):
         dmg_done += fight.dmg_done
         dmg_per_min += fight.dmg_per_min
 
-        # for turn in fight.results:
-        #     for j in turn:
-        #         print(j)
-        #         continue
+        if DEBUG:
+            for turn in fight.results:
+                for j in turn:
+                    print(j)
+                    continue
 
     avg_dmg = dmg_done/count
     avg_dmg_per_min = dmg_per_min / count
@@ -28,18 +31,11 @@ def multiple_simulations(cnt=1):
 
 
 def handle_simulation():
-    player_level = 100
+    player_level = 30
     player = Player(player_level)
     player.assign_card(cards.HeadlessHorseman(10))
-    player.assign_card(cards.HeadlessHorseman(10))
-    player.assign_card(cards.HeadlessHorseman(10))
-    player.assign_card(cards.HeadlessHorseman(10))
-    player.assign_card(cards.HeadlessHorseman(10))
-    player.assign_card(cards.HeadlessHorseman(10))
-    player.assign_card(cards.HeadlessHorseman(10))
-    player.assign_card(cards.HeadlessHorseman(10))
-    player.assign_card(cards.HeadlessHorseman(10))
-    player.assign_card(cards.HeadlessHorseman(10))
+    player.assign_card(cards.HeadlessHorseman(8))
+    player.assign_card(cards.HeadlessHorseman(5))
 
     demon_player = demons.DemonPlayer()
     demon_player.assign_card(demons.DarkTitan())

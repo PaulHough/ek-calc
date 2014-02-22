@@ -20,9 +20,7 @@ class Backstab(Ability):
     stacks = False
 
     def get_effect(self):
-        base_dmg = 40
-        dmg_inc = 40
-        return base_dmg + dmg_inc * (self.rank - 1)
+        return 40 * self.rank
 
 
 class Concentration(Ability):
@@ -34,10 +32,19 @@ class Concentration(Ability):
     stacks = False
 
     def get_effect(self):
-        base_atk = .2
-        atk_inc = .2
-        rand = random.choice([0, 1])
-        return (base_atk + atk_inc * (self.rank - 1)) * rand
+        return (.2 * self.rank) * random.choice([0, 1])
+
+
+class CounterAttack(Ability):
+    ability_type = constants.DAMAGE
+    target = constants.ENEMY
+    num_of_targets = 1
+    effect_type = constants.OTHER
+    occurs_once = False
+    stacks = False
+
+    def get_effect(self):
+        return 30 * self.rank
 
 
 class DevilsCurse(Ability):
@@ -50,6 +57,18 @@ class DevilsCurse(Ability):
 
     def get_effect(self):
         return 1000
+
+
+class DevilsBlade(Ability):
+    ability_type = constants.DAMAGE
+    target = constants.ENEMY
+    num_of_targets = 1
+    effect_type = constants.OTHER
+    occurs_once = False
+    stacks = False
+
+    def get_effect(self):
+        return 2000
 
 
 class Dodge(Ability):
@@ -65,6 +84,18 @@ class Dodge(Ability):
         dodge_inc = .05
         chance_to_dodge = base_dodge + dodge_inc * self.rank
         return chance_to_dodge <= random.uniform(0, 1)
+
+
+class Exile(Ability):
+    ability_type = constants.CARD_MANIPULATION
+    target = constants.ENEMY
+    num_of_targets = 1
+    effect_type = constants.EXILE
+    occurs_once = False
+    stacks = False
+
+    def get_effect(self):
+        pass
 
 
 class Immunity(Ability):
@@ -100,6 +131,4 @@ class Retaliation(Ability):
     stacks = False
 
     def get_effect(self):
-        base_dmg = 20
-        dmg_inc = 20
-        return base_dmg + dmg_inc * self.rank
+        return 20 * self.rank

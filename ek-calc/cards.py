@@ -3,10 +3,15 @@ import constants
 
 
 class Card():
+    effects = dict()
+
     def __init__(self, lvl=0):
         self.lvl = lvl
         self.hp = self._get_base_hp()
         self.atk = self._get_atk()
+
+    def get_base_hp(self):
+        return self._get_base_hp()
 
     def _get_base_hp(self):
         raise NotImplementedError('This card must have health.')
@@ -36,6 +41,7 @@ class HeadlessHorseman(Card):
     card_type = constants.MOUNTAIN
     stars = 3
     wait = 2
+    starting_wait = 2
     cost = 9
     first_attack = True
 
@@ -52,7 +58,14 @@ class HeadlessHorseman(Card):
     def handle_abilities_defense(self, dmg_summary):
         self.hp -= abilities.Dodge(3).get_effect() * \
                    dmg_summary[constants.DAMAGE]
-        return constants.NO_REFLECTED_DAMAGE
+        reflect_summary = [
+            {
+                constants.EFFECT_TYPE: None,
+                constants.DAMAGE: 0,
+                constants.TARGET: None
+            }
+        ]
+        return reflect_summary
 
     def handle_abilities_offense(self):
         dmg = self._get_atk()
@@ -62,17 +75,18 @@ class HeadlessHorseman(Card):
                 self.first_attack = False
         if self.lvl == 10:
             dmg += self._get_atk()*abilities.Concentration(7).get_effect()
-        dmg_summary = {
+        dmg_summary = [{
             constants.EFFECT_TYPE: constants.ATTACK,
-            constants.DAMAGE: dmg
-        }
+            constants.DAMAGE: dmg,
+            constants.TARGET: constants.CARD_ACROSS
+        }]
 
         return dmg_summary
 
     def __str__(self):
-        return 'Headless Horseman - Level: {}  HP: {}  ATK: {}  Wait: {}'.\
-            format(self.lvl, self.hp, self.atk, self.wait)
+        return 'Headless Horseman - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
 
     def __repr__(self):
-        return 'Headless Horseman - Level: {}  HP: {}  ATK: {}  Wait: {}'.\
-            format(self.lvl, self.hp, self.atk, self.wait)
+        return 'Headless Horseman - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
