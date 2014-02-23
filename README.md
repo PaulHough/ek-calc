@@ -1,7 +1,7 @@
 ek-calc
 ====================
 
-Version .1.0
+Version 0.1.0
 Simulation calculator for the game Elemental Kingdoms by Arcannis.
 
 Motivation
