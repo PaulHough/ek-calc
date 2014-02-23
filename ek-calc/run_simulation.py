@@ -43,7 +43,7 @@ def create_new_players(deck):
     for card in deck:
         player.assign_card(card)
     demon_player = demons.DemonPlayer()
-    demon_player.assign_card(demons.SeaKing())
+    demon_player.assign_card(demons.DarkTitan())
     return player, demon_player
 
 

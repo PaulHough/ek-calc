@@ -43,7 +43,7 @@ class SeaKing(Demon):
         return 1200
 
     def handle_abilities_defense(self, dmg_summary):
-        if self.hp <= 0 or dmg_summary[constants.EFFECT_TYPE] in \
+        if self.hp <= 0 or dmg_summary.get(constants.ELEMENT_TYPE, '') in \
                 constants.IMMUNITY_EFFECT_TYPES:
             reflect_summary = [
                 {
@@ -104,7 +104,7 @@ class DarkTitan(Demon):
         return 1800
 
     def handle_abilities_defense(self, dmg_summary):
-        if self.hp <= 0 or dmg_summary[constants.EFFECT_TYPE] in \
+        if self.hp <= 0 or dmg_summary.get(constants.ELEMENT_TYPE, '') in \
                 constants.IMMUNITY_EFFECT_TYPES:
             reflect_summary = [
                 {

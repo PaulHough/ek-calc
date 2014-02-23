@@ -141,7 +141,27 @@ class Fight():
                 dmg_summary)
             self.card.hp -= self._handle_reflect_summary(reflect_summary)
 
+    def _handle_heal(self, dmg_summary):
+        if dmg_summary[constants.TARGET] is constants.CARD_LOWEST_HP_ALLY:
+            self._handle_lowest_hp(dmg_summary)
+
+    def _handle_random_damage(self, dmg_summary):
+        num_of_targets = dmg_summary.get(constants.NUM_OF_TARGETS, 0)
+        if self.player_turn:
+            possible_choices = deepcopy(self.opp_in_play)
+        else:
+            possible_choices = deepcopy(self.player_in_play)
+        for target in range(0, num_of_targets):
+            if len(possible_choices) == 0:
+                return
+            card = random.choice(possible_choices)
+            possible_choices.remove(card)
+            reflect_summary = card.handle_abilities_defense(dmg_summary)
+            self.card.hp -= self._handle_reflect_summary(reflect_summary)
+
     def _resolve_damage_through_cards(self, dmg_summary, def_hero):
+        if dmg_summary[constants.EFFECT_TYPE] is constants.HEAL:
+            self._handle_heal(dmg_summary)
         if dmg_summary[constants.EFFECT_TYPE] is constants.ATTACK_CONDITIONAL:
             self._handle_conditionals(dmg_summary)
             return
@@ -154,6 +174,9 @@ class Fight():
                 return
         if dmg_summary[constants.TARGET] is constants.CARD_LOWEST_HP:
             self._handle_lowest_hp(dmg_summary)
+            return
+        if dmg_summary[constants.TARGET] is constants.ENEMY_RANDOM:
+            self._handle_random_damage(dmg_summary)
         else:
             if self.def_card is None:
                 self._direct_damage(dmg_summary, def_hero)

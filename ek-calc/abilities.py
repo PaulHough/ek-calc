@@ -23,6 +23,20 @@ class Backstab(Ability):
         return 40 * self.rank
 
 
+class ChainLightning(Ability):
+    ability_type = constants.DAMAGE
+    target = constants.ENEMY_RANDOM
+    num_of_targets = 3
+    effect_type = constants.ATTACK
+    occurs_once = False
+    stacks = False
+    attack_prevention = .4
+    element_type = constants.LIGHTNING
+
+    def get_effect(self):
+        return 25 * self.rank
+
+
 class Concentration(Ability):
     ability_type = constants.DAMAGE
     target = constants.ENEMY
@@ -83,7 +97,7 @@ class Dodge(Ability):
         base_dodge = .25
         dodge_inc = .05
         chance_to_dodge = base_dodge + dodge_inc * self.rank
-        return chance_to_dodge <= random.uniform(0, 1)
+        return chance_to_dodge > random.uniform(0, 1)
 
 
 class Exile(Ability):
@@ -96,6 +110,18 @@ class Exile(Ability):
 
     def get_effect(self):
         pass
+
+
+class Healing(Ability):
+    ability_type = constants.HEAL
+    target = constants.CARD_LOWEST_HP_ALLY
+    num_of_targets = 1
+    effect_type = constants.HEAL
+    occurs_once = False
+    stacks = False
+
+    def get_effect(self):
+        return -25 * self.rank
 
 
 class Immunity(Ability):
