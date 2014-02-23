@@ -64,16 +64,18 @@ class SeaKing(Demon):
         return reflect_summary
 
     def handle_abilities_offense(self):
+        exile = abilities.Exile()
+        devils_blade = abilities.DevilsBlade()
         dmg_summary = [
             {
-                constants.EFFECT_TYPE: constants.EXILE,
+                constants.EFFECT_TYPE: exile.effect_type,
                 constants.DAMAGE: 0,
-                constants.TARGET: constants.CARD_ACROSS
+                constants.TARGET: exile.target
             },
             {
-                constants.EFFECT_TYPE: constants.OTHER,
+                constants.EFFECT_TYPE: devils_blade.effect_type,
                 constants.DAMAGE: abilities.DevilsBlade().get_effect(),
-                constants.TARGET: constants.CARD_LOWEST_HP
+                constants.TARGET: devils_blade.target
             },
             {
                 constants.EFFECT_TYPE: constants.ATTACK,
@@ -84,11 +86,11 @@ class SeaKing(Demon):
         return dmg_summary
 
     def __str__(self):
-        return 'Sea King - Level: {}  HP: {}  ATK: {}  Wait: {}'.format(
+        return 'Sea King - Level: {}  HP: {}  ATK: {}'.format(
             self.lvl, self.hp, self.atk, self.wait)
 
     def __repr__(self):
-        return 'Sea King - Level: {}  HP: {}  ATK: {}  Wait: {}'.format(
+        return 'Sea King - Level: {}  HP: {}  ATK: {}'.format(
             self.lvl, self.hp, self.atk, self.wait)
 
 
@@ -113,21 +115,23 @@ class DarkTitan(Demon):
             ]
             return reflect_summary
         self.hp -= dmg_summary[constants.DAMAGE]
+        retaliation = abilities.Retaliation(10)
         reflect_summary = [
             {
-                constants.EFFECT_TYPE: constants.ATTACK,
-                constants.DAMAGE: abilities.Retaliation(10).get_effect(),
-                constants.TARGET: constants.CARD_ADJACENT
+                constants.EFFECT_TYPE: retaliation.effect_type,
+                constants.DAMAGE: retaliation.get_effect(),
+                constants.TARGET: retaliation.target
             }
         ]
         return reflect_summary
 
     def handle_abilities_offense(self):
+        devils_curse = abilities.DevilsCurse()
         dmg_summary = [
             {
-                constants.EFFECT_TYPE: constants.ATTACK,
-                constants.DAMAGE: abilities.DevilsCurse().get_effect(),
-                constants.TARGET: constants.ENEMY_HERO
+                constants.EFFECT_TYPE: devils_curse.effect_type,
+                constants.DAMAGE: devils_curse.get_effect(),
+                constants.TARGET: devils_curse.target
             },
             {
                 constants.EFFECT_TYPE: constants.ATTACK,
@@ -138,9 +142,9 @@ class DarkTitan(Demon):
         return dmg_summary
 
     def __str__(self):
-        return 'Dark Titan - Level: {}  HP: {}  ATK: {}  Wait: {}'.format(
+        return 'Dark Titan - Level: {}  HP: {}  ATK: {}'.format(
             self.lvl, self.hp, self.atk, self.wait)
 
     def __repr__(self):
-        return 'Dark Titan - Level: {}  HP: {}  ATK: {}  Wait: {}'.format(
+        return 'Dark Titan - Level: {}  HP: {}  ATK: {}'.format(
             self.lvl, self.hp, self.atk, self.wait)

@@ -1,4 +1,3 @@
-from sys import maxsize
 import random
 from copy import deepcopy
 
@@ -12,7 +11,6 @@ class Fight():
         self.opp = opp
         self.turn = 1
         self.results = list()
-        self.turn_results = list()
         self.dmg_done = 0
         self.dmg_per_min = 0
         self.cooldown = self._calc_cooldown()
@@ -37,52 +35,18 @@ class Fight():
     def sim_fight(self):
         self._prep_cards()
         while self.player.hp > 0 and self.opp.hp > 0:
-            self.turn_results = [
-                '{}\n{} Turn: {}'.format(
-                    '-'*40, 'Player' if self.player_turn else 'Opponent',
-                    self.turn),
-                'Player HP: {}\nOpponent HP: {}'.format(
-                    self.player.hp, self.opp.hp),
-                '\nPlayer Cards in Play: {}'.format(
-                    self.player_in_play),
-                'Opponent Cards in Play: {}'.format(
-                    self.opp_in_play),
-            ]
             self._prep_turn()
-
-            self.turn_results.extend(['\nPlayer Cards on Deck:'])
-            for card in self.player_on_deck:
-                self.turn_results.extend(['\t{} - Wait: {}'.format(
-                    card, card.wait)])
-            self.turn_results.extend(['Opponent Cards on Deck:'])
-            for card in self.opp_on_deck:
-                self.turn_results.extend(['\t{} - Wait: {}'.format(
-                    card, card.wait)])
-
             self._handle_runes()
             self._handle_attack()
             self.turn += 1
             self._resolve_all_healths()
-
-            self.turn_results.extend(['\n\n'])
-            self.results.append(self.turn_results)
-
         self.fight_summary()
 
     def fight_summary(self):
-        winner = self.opp
-        if self.opp.hp < self.player.hp:
-            winner = self.player
-
-        self.results.append(['Winner: {}'.format(winner)])
         if isinstance(self.opp, DemonPlayer):
             self.dmg_done = self.opp_in_play[0].\
                 get_base_hp() - self.opp_in_play[0].hp
             self.dmg_per_min = self.dmg_done / self.cooldown
-            self.results.append([
-                'Total Damage to Demon Card: {}'.format(self.dmg_done),
-                '\n\n'
-            ])
 
     def _resolve_all_healths(self):
         for card in self.player_in_play:
@@ -147,7 +111,40 @@ class Fight():
             self.player.card_order.append(card)
             self.player_in_play.remove(card)
 
+    def _handle_lowest_hp(self, dmg_summary):
+        card = self.def_card
+        if card is None:
+            if self.player_turn:
+                try:
+                    card = self._get_lowest_hp(self.player_in_play[0])
+                except IndexError:
+                    return
+            else:
+                try:
+                    card = self._get_lowest_hp(self.opp_in_play[0])
+                except IndexError:
+                    return
+        low_hp_card = self._get_lowest_hp(card)
+        low_hp_card.hp -= dmg_summary[constants.DAMAGE]
+
+    def _handle_conditionals(self, dmg_summary):
+        if dmg_summary[constants.TARGET] is constants.CARD_ACROSS:
+            if dmg_summary[constants.CONDITION] is constants.CONDITION_TYPE:
+                if self.def_card.card_type == \
+                        dmg_summary[constants.CONDITION_PARAMETER]:
+                    dmg_summary[constants.DAMAGE] = dmg_summary[
+                        constants.DAMAGE][1]
+                else:
+                    dmg_summary[constants.DAMAGE] = dmg_summary[
+                        constants.DAMAGE][0]
+            reflect_summary = self.def_card.handle_abilities_defense(
+                dmg_summary)
+            self.card.hp -= self._handle_reflect_summary(reflect_summary)
+
     def _resolve_damage_through_cards(self, dmg_summary, def_hero):
+        if dmg_summary[constants.EFFECT_TYPE] is constants.ATTACK_CONDITIONAL:
+            self._handle_conditionals(dmg_summary)
+            return
         if dmg_summary[constants.TARGET] is constants.ENEMY_HERO:
             self._direct_damage(dmg_summary, def_hero)
             return
@@ -156,57 +153,38 @@ class Fight():
                 self._direct_damage(dmg_summary, def_hero)
                 return
         if dmg_summary[constants.TARGET] is constants.CARD_LOWEST_HP:
-            card = self.def_card
-            if card is None:
-                if self.player_turn:
-                    try:
-                        card = self._get_lowest_hp(self.player_in_play[0])
-                    except IndexError:
-                        return
-                else:
-                    try:
-                        card = self._get_lowest_hp(self.opp_in_play[0])
-                    except IndexError:
-                        return
-            low_hp_card = self._get_lowest_hp(card)
-            low_hp_card.hp -= dmg_summary[constants.DAMAGE]
-
+            self._handle_lowest_hp(dmg_summary)
         else:
             if self.def_card is None:
                 self._direct_damage(dmg_summary, def_hero)
                 return
             if dmg_summary[constants.EFFECT_TYPE] is constants.EXILE:
                 self._exile_card(self.def_card)
-                self.turn_results.extend(['{} Was Exiled'.format(
-                    self.def_card)])
                 self.def_card = None
                 return
 
             reflect_summary = self.def_card.handle_abilities_defense(
                 dmg_summary)
             self.card.hp -= self._handle_reflect_summary(reflect_summary)
-            if self.card.is_dead():
-                self.turn_results.extend(
-                    ['{} Was Killed in Battle'.format(self.card)])
-            if self.def_card.is_dead():
-                self.turn_results.extend(
-                    ['{} Was Killed in Battle'.format(self.def_card)])
 
     def _direct_damage(self, dmg_summary, def_hero):
         dmg_done = 0
         if isinstance(dmg_summary, dict):
+            if dmg_summary[constants.EFFECT_TYPE] is \
+                    constants.ATTACK_CONDITIONAL:
+                dmg_summary[constants.DAMAGE] = dmg_summary[
+                    constants.DAMAGE][0]
             if dmg_summary[constants.TARGET] in \
                     (constants.ENEMY_HERO, constants.CARD_ACROSS):
                 dmg_done += dmg_summary[constants.DAMAGE]
         elif isinstance(dmg_summary, (list, tuple)):
             for dmg in dmg_summary:
+                if dmg[constants.EFFECT_TYPE] is constants.ATTACK_CONDITIONAL:
+                    dmg[constants.DAMAGE] = dmg[constants.DAMAGE][0]
                 if dmg[constants.TARGET] in \
                         (constants.ENEMY_HERO, constants.CARD_ACROSS):
                     dmg_done += dmg[constants.DAMAGE]
         def_hero.hp -= dmg_done
-        if dmg_done > 0:
-            self.turn_results.extend(['{} Took {} Damage'.format(
-                def_hero, dmg_done)])
 
     def _handle_attack(self):
         if self.player_turn:
@@ -231,19 +209,11 @@ class Fight():
     def _damage_through_cards(self, dmg_summary, def_hero):
         for dmg in dmg_summary:
             if self.card.is_dead():
-                self. turn_results.extend(
-                    ['{} Was Killed in Battle'.format(self.card)])
                 break
             self._resolve_damage_through_cards(dmg, def_hero)
 
     def _attack_with_card(self, opp, opp_in_play):
         dmg_summary = self.card.handle_abilities_offense()
-
-        self.turn_results.extend([
-            '\nCard Attacking: {}'.format(self.card),
-            'Damage Summary: {}'.format(dmg_summary)
-        ])
-
         if len(opp_in_play) <= self.index:
             self._direct_damage(dmg_summary, opp)
         elif len(opp_in_play) > self.index:
@@ -262,8 +232,6 @@ class Fight():
         if self.player_turn:
             for card in self.player_on_deck:
                 if card.wait == 0:
-                    self.turn_results.extend(
-                        ['Card Going Into Play: {}'.format(card)])
                     self.player_in_play.append(card)
             for card in self.player_in_play:
                 if card in self.player_on_deck:
@@ -271,8 +239,6 @@ class Fight():
         else:
             for card in self.opp_on_deck:
                 if card.wait == 0:
-                    self.turn_results.extend(
-                        ['Card Going Into Play: {}'.format(card)])
                     self.opp_in_play.append(card)
             for card in self.opp_in_play:
                 if card in self.opp_on_deck:

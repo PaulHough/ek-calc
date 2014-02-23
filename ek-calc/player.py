@@ -29,6 +29,9 @@ class Player():
         return 10000
         # return cost
 
+    def get_num_of_cards_allowed(self):
+        return self._num_of_cards_allowed()
+
     def _num_of_cards_allowed(self):
         num_of_cards = 3
         if self.lvl >= 3:

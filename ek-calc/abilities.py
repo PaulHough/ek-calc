@@ -51,7 +51,7 @@ class DevilsCurse(Ability):
     ability_type = constants.DAMAGE
     target = constants.ENEMY_HERO
     num_of_targets = 1
-    effect_type = constants.HP
+    effect_type = constants.ATTACK
     occurs_once = False
     stacks = False
 
@@ -61,9 +61,9 @@ class DevilsCurse(Ability):
 
 class DevilsBlade(Ability):
     ability_type = constants.DAMAGE
-    target = constants.ENEMY
+    target = constants.CARD_LOWEST_HP
     num_of_targets = 1
-    effect_type = constants.OTHER
+    effect_type = constants.ATTACK
     occurs_once = False
     stacks = False
 
@@ -88,7 +88,7 @@ class Dodge(Ability):
 
 class Exile(Ability):
     ability_type = constants.CARD_MANIPULATION
-    target = constants.ENEMY
+    target = constants.CARD_ACROSS
     num_of_targets = 1
     effect_type = constants.EXILE
     occurs_once = False
@@ -124,7 +124,7 @@ class Laceration(Ability):
 
 class Retaliation(Ability):
     ability_type = constants.DAMAGE
-    target = constants.ENEMY
+    target = constants.CARD_ADJACENT
     num_of_targets = 3
     effect_type = constants.ATTACK
     occurs_once = False
@@ -132,3 +132,27 @@ class Retaliation(Ability):
 
     def get_effect(self):
         return 20 * self.rank
+
+
+class Snipe(Ability):
+    ability_type = constants.DAMAGE
+    target = constants.CARD_LOWEST_HP
+    num_of_targets = 1
+    effect_type = constants.ATTACK
+    occurs_once = False
+    stacks = False
+
+    def get_effect(self):
+        return 30 * self.rank
+
+
+class SwampPurity(Ability):
+    ability_type = constants.DAMAGE
+    target = constants.CARD_ACROSS
+    num_of_targets = 1
+    effect_type = constants.ATTACK_CONDITIONAL
+    occurs_once = False
+    stacks = False
+
+    def get_effect(self):
+        return .15 * (self.rank + 1)
