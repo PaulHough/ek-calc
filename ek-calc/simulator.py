@@ -48,15 +48,27 @@ class Fight():
                 get_base_hp() - self.opp_in_play[0].hp
             self.dmg_per_min = self.dmg_done / self.cooldown
 
+    def _handle_exiting_effects(self, card):
+        exit_summary = card.exit_effect()
+        for effect in exit_summary:
+            self._handle_effect(effect)
+
     def _resolve_all_healths(self):
         for card in self.player_in_play:
             if card.is_dead():
                 self.player_in_play.remove(card)
+                if card.should_res:
+                    self.player.card_order.append(card)
+                    return
                 self.player_cemetery.append(card)
+                self._handle_exiting_effects(card)
         for card in self.opp_in_play:
             if card.is_dead():
                 self.opp_in_play.remove(card)
-                self.opp_cemetery.append(card)
+                if card.should_res:
+                    self.opp.card_order.append(card)
+                else:
+                    self.opp_cemetery.append(card)
 
     def _damage_adjacent_cards(self, dmg, cards):
         for card in cards:
@@ -250,12 +262,25 @@ class Fight():
         self._put_cards_in_play()
         self._put_cards_on_deck()
 
+    def _handle_effect(self, effect):
+        if effect.get(constants.TARGET) is constants.OTHER_FOREST_ALLIES:
+            if self.player_turn:
+                for card in self.player_in_play:
+                    if card.card_type == constants.FOREST:
+                        card.atk += effect[constants.EFFECT]
+
+    def _handle_entering_effects(self, card):
+        enter_summary = card.enter_effect()
+        for effect in enter_summary:
+            self._handle_effect(effect)
+
     def _put_cards_in_play(self):
         self._reduce_wait()
         if self.player_turn:
             for card in self.player_on_deck:
                 if card.wait == 0:
                     self.player_in_play.append(card)
+                    self._handle_entering_effects(card)
             for card in self.player_in_play:
                 if card in self.player_on_deck:
                     self.player_on_deck.remove(card)
@@ -263,6 +288,7 @@ class Fight():
             for card in self.opp_on_deck:
                 if card.wait == 0:
                     self.opp_in_play.append(card)
+                    self._handle_entering_effects(card)
             for card in self.opp_in_play:
                 if card in self.opp_on_deck:
                     self.opp_on_deck.remove(card)

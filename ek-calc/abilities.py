@@ -4,6 +4,13 @@ import constants
 
 
 class Ability():
+    ability_type = constants.DAMAGE
+    occurs_once = False
+    stacks = False
+    num_of_targets = 1
+    effect_type = constants.ATTACK
+    target = constants.CARD_ACROSS
+
     def __init__(self, rank=None):
         self.rank = rank
 
@@ -12,24 +19,13 @@ class Ability():
 
 
 class Backstab(Ability):
-    ability_type = constants.DAMAGE
-    target = constants.SELF
-    num_of_targets = 1
-    effect_type = constants.ATTACK
-    occurs_once = True
-    stacks = False
-
     def get_effect(self):
         return 40 * self.rank
 
 
 class ChainLightning(Ability):
-    ability_type = constants.DAMAGE
     target = constants.ENEMY_RANDOM
     num_of_targets = 3
-    effect_type = constants.ATTACK
-    occurs_once = False
-    stacks = False
     attack_prevention = .4
     element_type = constants.LIGHTNING
 
@@ -38,48 +34,32 @@ class ChainLightning(Ability):
 
 
 class Concentration(Ability):
-    ability_type = constants.DAMAGE
-    target = constants.ENEMY
-    num_of_targets = 1
-    effect_type = constants.ATTACK
-    occurs_once = False
-    stacks = False
-
     def get_effect(self):
         return (.2 * self.rank) * random.choice([0, 1])
 
 
 class CounterAttack(Ability):
-    ability_type = constants.DAMAGE
-    target = constants.ENEMY
-    num_of_targets = 1
-    effect_type = constants.OTHER
-    occurs_once = False
-    stacks = False
-
     def get_effect(self):
         return 30 * self.rank
 
 
+class DevilsArmor(Ability):
+    target = constants.CARD_ADJACENT
+    num_of_targets = 3
+
+    def get_effect(self):
+        return 1500
+
+
 class DevilsCurse(Ability):
-    ability_type = constants.DAMAGE
     target = constants.ENEMY_HERO
-    num_of_targets = 1
-    effect_type = constants.ATTACK
-    occurs_once = False
-    stacks = False
 
     def get_effect(self):
         return 1000
 
 
 class DevilsBlade(Ability):
-    ability_type = constants.DAMAGE
     target = constants.CARD_LOWEST_HP
-    num_of_targets = 1
-    effect_type = constants.ATTACK
-    occurs_once = False
-    stacks = False
 
     def get_effect(self):
         return 2000
@@ -88,10 +68,6 @@ class DevilsBlade(Ability):
 class Dodge(Ability):
     ability_type = constants.DAMAGE_MITIGATION
     target = constants.SELF
-    num_of_targets = 1
-    effect_type = constants.ATTACK
-    occurs_once = False
-    stacks = False
 
     def get_effect(self):
         base_dodge = .25
@@ -102,23 +78,33 @@ class Dodge(Ability):
 
 class Exile(Ability):
     ability_type = constants.CARD_MANIPULATION
-    target = constants.CARD_ACROSS
-    num_of_targets = 1
     effect_type = constants.EXILE
-    occurs_once = False
-    stacks = False
 
     def get_effect(self):
         pass
 
 
+class Fireball(Ability):
+    target = constants.ENEMY_RANDOM
+    element_type = constants.FIRE
+
+    def get_effect(self):
+        low = 25 * self.rank
+        high = 50 * self.rank
+        return random.uniform(low, high)
+
+
+class ForestForce(Ability):
+    target = constants.OTHER_FOREST_ALLIES
+
+    def get_effect(self):
+        return 25 + self.rank
+
+
 class Healing(Ability):
     ability_type = constants.HEAL
     target = constants.CARD_LOWEST_HP_ALLY
-    num_of_targets = 1
     effect_type = constants.HEAL
-    occurs_once = False
-    stacks = False
 
     def get_effect(self):
         return -25 * self.rank
@@ -127,10 +113,7 @@ class Healing(Ability):
 class Immunity(Ability):
     ability_type = constants.DAMAGE_MITIGATION
     target = constants.SELF
-    num_of_targets = 1
     effect_type = constants.OTHER
-    occurs_once = False
-    stacks = False
 
     def get_effect(self):
         return constants.IMMUNE
@@ -138,35 +121,47 @@ class Immunity(Ability):
 
 class Laceration(Ability):
     ability_type = constants.CARD_MANIPULATION
-    target = constants.ENEMY
-    num_of_targets = 1
-    effect_type = constants.OTHER
-    occurs_once = False
-    stacks = False
 
     def get_effect(self):
         return constants.NO_HEALS
 
 
+class Parry(Ability):
+    ability_type = constants.DAMAGE_MITIGATION
+    target = constants.SELF
+
+    def get_effect(self):
+        return 20 * self.rank
+
+
+class Rejuvenation(Ability):
+    ability_type = constants.HEAL
+    target = constants.SELF
+    effect_type = constants.HEAL
+
+    def get_effect(self):
+        return 30 * self.rank
+
+
+class Resurrection(Ability):
+    ability_type = constants.CARD_MANIPULATION
+    target = constants.SELF
+    effect_type = constants.OTHER
+
+    def get_effect(self):
+        return .30 + .05 * self.rank > random.uniform(0, 1)
+
+
 class Retaliation(Ability):
-    ability_type = constants.DAMAGE
     target = constants.CARD_ADJACENT
     num_of_targets = 3
-    effect_type = constants.ATTACK
-    occurs_once = False
-    stacks = False
 
     def get_effect(self):
         return 20 * self.rank
 
 
 class Snipe(Ability):
-    ability_type = constants.DAMAGE
     target = constants.CARD_LOWEST_HP
-    num_of_targets = 1
-    effect_type = constants.ATTACK
-    occurs_once = False
-    stacks = False
 
     def get_effect(self):
         return 30 * self.rank
@@ -174,11 +169,7 @@ class Snipe(Ability):
 
 class SwampPurity(Ability):
     ability_type = constants.DAMAGE
-    target = constants.CARD_ACROSS
-    num_of_targets = 1
     effect_type = constants.ATTACK_CONDITIONAL
-    occurs_once = False
-    stacks = False
 
     def get_effect(self):
         return .15 * (self.rank + 1)

@@ -2,6 +2,7 @@
 import itertools
 import sys
 from copy import deepcopy
+from datetime import datetime
 
 from player import Player
 from simulator import Fight
@@ -10,7 +11,7 @@ from my_cards import my_cards
 import cards
 
 DEBUG = False
-PLAYER_LVL = 31
+PLAYER_LVL = 100
 
 
 def get_possible_decks():
@@ -43,7 +44,7 @@ def create_new_players(deck):
     for card in deck:
         player.assign_card(card)
     demon_player = demons.DemonPlayer()
-    demon_player.assign_card(demons.DarkTitan())
+    demon_player.assign_card(demons.Deucalion())
     return player, demon_player
 
 
@@ -80,6 +81,7 @@ def handle_single_deck_simulation(cnt=1):
 
 
 if __name__ == '__main__':
+    start = datetime.now()
     if len(sys.argv) == 3:
         try:
             count = int(sys.argv[2])
@@ -89,17 +91,15 @@ if __name__ == '__main__':
             raise TypeError(err_msg)
         handle_single_deck_simulation(count)
         sys.exit()
-    elif len(sys.argv) == 2:
-        try:
-            count = int(sys.argv[1])
-        except ValueError:
-            err_msg = 'Expected integer received {} instead'.format(
-                type(sys.argv[1]))
-            raise TypeError(err_msg)
-    elif len(sys.argv) == 1:
-        count = 1
-    else:
-        err_msg = 'run_simulation takes 1 positional argument but {} were ' \
-                  'given'.format(len(sys.argv) - 1)
-        raise TypeError(err_msg)
-    handle_simulations(count)
+    elif len(sys.argv) < 3:
+        if len(sys.argv) == 2:
+            try:
+                count = int(sys.argv[1])
+            except ValueError:
+                err_msg = 'Expected integer received {} instead'.format(
+                    type(sys.argv[1]))
+                raise TypeError(err_msg)
+        else:
+            count = 1
+        handle_simulations(count)
+    print('Simulation took: {}'.format(datetime.now() - start))
