@@ -114,7 +114,6 @@ if __name__ == '__main__':
                 type(sys.argv[1]))
             raise TypeError(err_msg)
         handle_single_deck_simulation(count)
-        sys.exit()
     elif len(sys.argv) < 3:
         if len(sys.argv) == 2:
             try:
