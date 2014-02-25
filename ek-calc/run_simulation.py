@@ -7,20 +7,20 @@ from datetime import datetime
 from player import Player
 from simulator import Fight
 import demons
-from my_cards import my_cards
-import cards
+from my_cards import player_deck
 
 DEBUG = False
 PLAYER_LVL = 33
+DEMON_CARD = demons.PlagueOgryn()
 
 
 def get_possible_decks():
     decks = list()
-    for r in range(1, len(my_cards) + 1):
+    for r in range(1, len(player_deck) + 1):
         if r > Player(PLAYER_LVL).get_num_of_cards_allowed():
             continue
         print('Getting combinations for {} cards.'.format(r))
-        decks.extend(list(itertools.combinations(my_cards, r=r)))
+        decks.extend(list(itertools.combinations(player_deck, r=r)))
     print('Calculated {} possible deck combinations.'.format(len(decks)))
     return decks
 
@@ -44,7 +44,7 @@ def create_new_players(deck):
     for card in deck:
         player.assign_card(card)
     demon_player = demons.DemonPlayer()
-    demon_player.assign_card(demons.PlagueOgryn())
+    demon_player.assign_card(DEMON_CARD)
     return player, demon_player
 
 
@@ -68,12 +68,10 @@ def handle_simulations(cnt=1):
 
 
 def handle_single_deck_simulation(cnt=1):
-    # deck = (cards.HeadlessHorseman(10), cards.WoodElfArcher(10))
-    deck = (cards.HeadlessHorseman(10), cards.HeadlessHorseman(10))
     dmg_done = 0
     dmg_per_min = 0
     for _ in itertools.repeat(None, cnt):
-        player, demon_player = create_new_players(deck)
+        player, demon_player = create_new_players(player_deck)
         fight = Fight(player, demon_player)
         dmg_done += fight.dmg_done
         dmg_per_min += fight.dmg_per_min

@@ -18,9 +18,31 @@ class Ability():
         raise NotImplementedError('This ability needs an effect')
 
 
+class ArcticPollution(Ability):
+    ability_type = constants.DAMAGE
+    effect_type = constants.ATTACK_CONDITIONAL
+
+    def get_effect(self):
+        return .15 * (self.rank + 1)
+
+
 class Backstab(Ability):
     def get_effect(self):
         return 40 * self.rank
+
+
+class Bite(Ability):
+    ability_type = constants.BITE
+    target = constants.ENEMY_RANDOM
+    effect_type = constants.SPELL
+
+    def get_effect(self):
+        return 20 * self.rank
+
+
+class Bloodthirsty(Ability):
+    def get_effect(self):
+        return 10 * self.rank
 
 
 class ChainLightning(Ability):
@@ -157,6 +179,11 @@ class Parry(Ability):
 
     def get_effect(self):
         return 20 * self.rank
+
+
+class Reflection(Ability):
+    def get_effect(self):
+        return 30 * self.rank
 
 
 class Rejuvenation(Ability):

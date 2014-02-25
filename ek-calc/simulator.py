@@ -156,9 +156,14 @@ class Fight():
             if self.def_card is None or self.def_card.is_dead():
                 self._direct_damage(dmg_summary, def_hero)
                 return
+            starting_hp = self.def_card.hp
             reflect_summary = self.def_card.handle_abilities_defense(
                 dmg_summary)
             self.card.hp -= self._handle_reflect_summary(reflect_summary)
+            if dmg_summary.get(constants.EXTRA_EFFECT) is \
+                    constants.BLOODTHIRSTY and \
+                    starting_hp - self.def_card.hp > 0:
+                self.card.handle_bloodthirsty()
 
     def _handle_heal(self, dmg_summary):
         if dmg_summary[constants.TARGET] is constants.CARD_LOWEST_HP_ALLY:
@@ -212,6 +217,15 @@ class Fight():
         if dmg_summary[constants.TARGET] is constants.CARD_ACROSS:
             self.def_card.add_effect(dmg_summary)
 
+    def _handle_bite(self, dmg_summary):
+        if self.player_turn:
+            card = random.choice(self.opp_in_play)
+        else:
+            card = random.choice(self.player_in_play)
+        starting_hp = card.hp
+        card.handle_abilities_defense(dmg_summary)
+        self.card.receive_heal(starting_hp - card.hp)
+
     def _resolve_damage_through_cards(self, dmg_summary, def_hero):
         if dmg_summary[constants.EFFECT_TYPE] is constants.HEAL:
             self._handle_heal(dmg_summary)
@@ -221,6 +235,9 @@ class Fight():
             return
         if dmg_summary[constants.EFFECT_TYPE] is constants.LACERATION:
             self._handle_laceration(dmg_summary)
+            return
+        if dmg_summary[constants.EFFECT_TYPE] is constants.BITE:
+            self._handle_bite(dmg_summary)
             return
         if dmg_summary[constants.TARGET] is constants.ENEMY_HERO:
             self._direct_damage(dmg_summary, def_hero)
@@ -249,9 +266,13 @@ class Fight():
             self._direct_damage(dmg_summary, def_hero)
             return
 
+        starting_hp = self.def_card.hp
         reflect_summary = self.def_card.handle_abilities_defense(
             dmg_summary)
         self.card.hp -= self._handle_reflect_summary(reflect_summary)
+        if dmg_summary.get(constants.EXTRA_EFFECT) is constants.BLOODTHIRSTY \
+                and starting_hp - self.def_card.hp > 0:
+            self.card.handle_bloodthirsty()
 
     def _direct_damage(self, dmg_summary, def_hero):
         dmg_done = 0

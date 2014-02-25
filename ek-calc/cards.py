@@ -17,6 +17,8 @@ class Card():
     effects = list()
 
     def __init__(self, lvl=0):
+        if lvl > 10 or lvl < 0:
+            raise ValueError('Cards must have a level 0 to 10.')
         self.lvl = lvl
         self.hp = self.get_base_hp()
         self.atk = self._get_atk()
@@ -63,6 +65,9 @@ class Card():
     def _get_damage_summary(self):
         raise NotImplementedError('This card must have offensive abilities.')
 
+    def handle_bloodthirsty(self):
+        pass
+
     def handle_abilities_defense(self, dmg_summary):
         self._handle_stunning_effects(dmg_summary)
         return self._get_reflect_summary(dmg_summary)
@@ -100,6 +105,66 @@ class Card():
     def __repr__(self):
         raise NotImplementedError(
             'Define how this card will display in results')
+
+
+class BloodWarrior(Card):
+    def __init__(self, lvl=0):
+        self.card_type = constants.SWAMP
+        self.stars = 4
+        self.wait = 4
+        self.starting_wait = 4
+        self.cost = 13
+        self.base_hp = 890
+        self.hp_inc = 45
+        self.base_atk = 250
+        self.atk_inc = 24
+        super(BloodWarrior, self).__init__(lvl)
+
+    def _get_reflect_summary(self, dmg_summary):
+        if self.lvl >= 5 and \
+                dmg_summary[constants.EFFECT_TYPE] is constants.SPELL:
+            reflection = abilities.Reflection(4)
+            return [{
+                constants.EFFECT_TYPE: reflection.effect_type,
+                constants.DAMAGE: reflection.get_effect(),
+                constants.TARGET: reflection.target
+            }]
+        else:
+            self.hp -= dmg_summary.get(constants.DAMAGE, 0)
+        return list()
+
+    def _handle_lvl_5_ability(self):
+        pass
+
+    def _handle_lvl_10_ability(self):
+        pass
+
+    def handle_bloodthirsty(self):
+        if self.lvl == 10:
+            bloodthirsty = abilities.Bloodthirsty(6)
+            self.atk += bloodthirsty.get_effect()
+
+    def _get_damage_summary(self):
+        if self.prevention:
+            return list()
+        arctic_pollution = abilities.ArcticPollution(6)
+        dmg2 = self.atk * (1 + arctic_pollution.get_effect())
+        return [{
+            constants.EFFECT_TYPE: arctic_pollution.effect_type,
+            constants.DAMAGE: (self.atk, dmg2),
+            constants.TARGET: arctic_pollution.target,
+            constants.CONDITION: constants.CONDITION_TYPE,
+            constants.CONDITION_PARAMETER: constants.TUNDRA,
+            constants.EXTRA_EFFECT: constants.BLOODTHIRSTY
+        }]
+
+    def __str__(self):
+        return 'Headless Horseman - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
+
+    def __repr__(self):
+        return 'Headless Horseman - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
 
 
 class BronzeDragon(Card):
@@ -206,6 +271,60 @@ class HeadlessHorseman(Card):
 
     def __repr__(self):
         return 'Headless Horseman - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
+
+
+class Necromancer(Card):
+    def __init__(self, lvl=0):
+        self.card_type = constants.MOUNTAIN
+        self.stars = 4
+        self.wait = 4
+        self.starting_wait = 4
+        self.cost = 13
+        self.base_hp = 720
+        self.hp_inc = 25
+        self.base_atk = 220
+        self.atk_inc = 24
+        super(Necromancer, self).__init__(lvl)
+
+    def _get_reflect_summary(self, dmg_summary):
+        if self.lvl >= 5 and \
+                dmg_summary[constants.EFFECT_TYPE] is constants.ATTACK:
+            dodge_chance = abilities.Dodge(6).get_effect()
+            self.hp -= dodge_chance * dmg_summary.get(constants.DAMAGE, 0)
+        else:
+            self.hp -= dmg_summary.get(constants.DAMAGE, 0)
+        return list()
+
+    def _handle_lvl_5_ability(self):
+        pass
+
+    def _handle_lvl_10_ability(self):
+        if abilities.Resurrection(6).get_effect():
+            self.should_res = True
+
+    def _get_damage_summary(self):
+        bite = abilities.Bite(6)
+        dmg_summary = [{
+            constants.EFFECT_TYPE: bite.effect_type,
+            constants.DAMAGE: bite.get_effect(),
+            constants.TARGET: bite.target
+        }]
+        for_dmg = {
+            constants.EFFECT_TYPE: constants.ATTACK,
+            constants.DAMAGE: self.atk,
+            constants.TARGET: constants.CARD_ACROSS
+        }
+        if not self.prevention:
+            dmg_summary.append(for_dmg)
+        return dmg_summary
+
+    def __str__(self):
+        return 'Necromancer - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
+
+    def __repr__(self):
+        return 'Necromancer - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
 
@@ -339,7 +458,7 @@ class Troglodyte(Card):
         super(Troglodyte, self).__init__(lvl)
 
     def _handle_lvl_5_ability(self):
-        swamp_purity = abilities.SwampPurity(5)
+        swamp_purity = abilities.SwampPurity(6)
         dmg2 = self.atk * (1 + swamp_purity.get_effect())
         return {
             constants.EFFECT_TYPE: swamp_purity.effect_type,
