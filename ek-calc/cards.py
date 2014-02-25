@@ -5,23 +5,23 @@ import constants
 
 
 class Card():
-    should_res = False
-    stunned = False
-    prevention = False
-    lacerate = False
-    first_attack = True
-    base_atk = 0
-    hp_inc = 0
-    base_hp = 0
-    atk_inc = 0
-    effects = list()
-
     def __init__(self, lvl=0):
         if lvl > 10 or lvl < 0:
             raise ValueError('Cards must have a level 0 to 10.')
         self.lvl = lvl
         self.hp = self.get_base_hp()
         self.atk = self._get_atk()
+        self.should_res = False
+        self.stunned = False
+        self.prevention = False
+        self.lacerate = False
+        self.first_attack = True
+        self.base_atk = 0
+        self.hp_inc = 0
+        self.base_hp = 0
+        self.atk_inc = 0
+        self.effects = list()
+
 
     def get_base_hp(self):
         return self.base_hp + self.hp_inc * self.lvl

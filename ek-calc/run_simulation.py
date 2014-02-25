@@ -11,11 +11,11 @@ from my_cards import player_deck, player_runes
 
 DEBUG = False
 PLAYER_LVL = 50
-DEMON_CARD = demons.PlagueOgryn()
+DEMON_CARD = demons.DarkTitan()
 
 
 def get_possible_decks():
-    decks = list()
+    decks = list([])
     for r in range(1, len(player_deck) + 1):
         if r > Player(PLAYER_LVL).get_num_of_cards_allowed():
             continue
@@ -24,7 +24,7 @@ def get_possible_decks():
 
 
 def get_possible_runes():
-    runes = list()
+    runes = list([])
     for r in range(1, len(player_runes) + 1):
         if r > Player(PLAYER_LVL).get_num_of_runes_allowed():
             continue

@@ -277,8 +277,7 @@ class Fight():
     def _direct_damage(self, dmg_summary, def_hero):
         dmg_done = 0
         if isinstance(dmg_summary, dict):
-            if dmg_summary[constants.EFFECT_TYPE] is \
-                    constants.ATK_COND:
+            if dmg_summary[constants.EFFECT_TYPE] is constants.ATK_COND:
                 dmg_summary[constants.DAMAGE] = dmg_summary[
                     constants.DAMAGE][0]
             if dmg_summary[constants.TARGET] in \
@@ -286,6 +285,9 @@ class Fight():
                 dmg_done += dmg_summary[constants.DAMAGE]
         elif isinstance(dmg_summary, (list, tuple)):
             for dmg in dmg_summary:
+                if dmg[constants.EFFECT_TYPE] not in \
+                        constants.CAN_DAMAGE_PLAYER:
+                    return
                 if dmg[constants.EFFECT_TYPE] is constants.ATK_COND:
                     dmg[constants.DAMAGE] = dmg[constants.DAMAGE][0]
                 if dmg[constants.TARGET] in \
