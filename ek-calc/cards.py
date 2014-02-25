@@ -95,7 +95,7 @@ class Card():
     def _handle_stunning_effects(self, dmg_summary):
         self.stunned = dmg_summary.get(constants.STUN, 0) > \
             random.uniform(0, 1)
-        self.prevention = dmg_summary.get(constants.ATTACK_PREVENTION, 0) > \
+        self.prevention = dmg_summary.get(constants.ATK_PREVENTION, 0) > \
             random.uniform(0, 1)
 
     def __str__(self):
@@ -182,7 +182,7 @@ class BronzeDragon(Card):
 
     def _get_reflect_summary(self, dmg_summary):
         if self.lvl == 10 and \
-                dmg_summary[constants.EFFECT_TYPE] is constants.ATTACK:
+                dmg_summary[constants.EFFECT_TYPE] is constants.ATK:
             dodge_chance = abilities.Dodge(8).get_effect()
             self.hp -= dodge_chance * dmg_summary.get(constants.DAMAGE, 0)
         else:
@@ -204,7 +204,7 @@ class BronzeDragon(Card):
             constants.TARGET: thunderbolt.target
         }]
         for_dmg = {
-            constants.EFFECT_TYPE: constants.ATTACK,
+            constants.EFFECT_TYPE: constants.ATK,
             constants.DAMAGE: self.atk,
             constants.TARGET: constants.CARD_ACROSS
         }
@@ -235,7 +235,7 @@ class HeadlessHorseman(Card):
         super(HeadlessHorseman, self).__init__(lvl)
 
     def _get_reflect_summary(self, dmg_summary):
-        if dmg_summary[constants.EFFECT_TYPE] is constants.ATTACK:
+        if dmg_summary[constants.EFFECT_TYPE] is constants.ATK:
             dodge_chance = abilities.Dodge(3).get_effect()
             self.hp -= dodge_chance * dmg_summary.get(constants.DAMAGE, 0)
         else:
@@ -257,7 +257,7 @@ class HeadlessHorseman(Card):
         if self.lvl == 10:
             dmg += self.atk * abilities.Concentration(7).get_effect()
         dmg_summary = [{
-            constants.EFFECT_TYPE: constants.ATTACK,
+            constants.EFFECT_TYPE: constants.ATK,
             constants.DAMAGE: dmg,
             constants.TARGET: constants.CARD_ACROSS
         }]
@@ -289,7 +289,7 @@ class Necromancer(Card):
 
     def _get_reflect_summary(self, dmg_summary):
         if self.lvl >= 5 and \
-                dmg_summary[constants.EFFECT_TYPE] is constants.ATTACK:
+                dmg_summary[constants.EFFECT_TYPE] is constants.ATK:
             dodge_chance = abilities.Dodge(6).get_effect()
             self.hp -= dodge_chance * dmg_summary.get(constants.DAMAGE, 0)
         else:
@@ -311,7 +311,7 @@ class Necromancer(Card):
             constants.TARGET: bite.target
         }]
         for_dmg = {
-            constants.EFFECT_TYPE: constants.ATTACK,
+            constants.EFFECT_TYPE: constants.ATK,
             constants.DAMAGE: self.atk,
             constants.TARGET: constants.CARD_ACROSS
         }
@@ -366,7 +366,7 @@ class SkeletonKing(Card):
             dmg += abilities.Backstab(8).get_effect()
             self.first_attack = False
         for_dmg = {
-            constants.EFFECT_TYPE: constants.ATTACK,
+            constants.EFFECT_TYPE: constants.ATK,
             constants.DAMAGE: dmg,
             constants.TARGET: constants.CARD_ACROSS
         }
@@ -425,7 +425,7 @@ class SpitfireWorm(Card):
             constants.NUM_OF_TARGETS: fireball.num_of_targets,
         }]
         for_dmg = {
-            constants.EFFECT_TYPE: constants.ATTACK,
+            constants.EFFECT_TYPE: constants.ATK,
             constants.DAMAGE: self.atk,
             constants.TARGET: constants.CARD_ACROSS
         }
@@ -475,7 +475,7 @@ class Troglodyte(Card):
             constants.DAMAGE: chain_lightning.get_effect(),
             constants.TARGET: chain_lightning.target,
             constants.NUM_OF_TARGETS: chain_lightning.num_of_targets,
-            constants.ATTACK_PREVENTION: chain_lightning.attack_prevention,
+            constants.ATK_PREVENTION: chain_lightning.attack_prevention,
         }
 
     def _get_damage_summary(self):
@@ -486,7 +486,7 @@ class Troglodyte(Card):
             constants.TARGET: healing.target
         }]
         for_dmg = {
-            constants.EFFECT_TYPE: constants.ATTACK,
+            constants.EFFECT_TYPE: constants.ATK,
             constants.DAMAGE: self.atk,
             constants.TARGET: constants.CARD_ACROSS,
         }
@@ -547,7 +547,7 @@ class WoodElfArcher(Card):
             constants.TARGET: snipe.target
         }]
         for_dmg = {
-            constants.EFFECT_TYPE: constants.ATTACK,
+            constants.EFFECT_TYPE: constants.ATK,
             constants.DAMAGE: self.atk,
             constants.TARGET: constants.CARD_ACROSS,
         }

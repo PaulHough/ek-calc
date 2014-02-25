@@ -26,12 +26,6 @@ class Fight():
         self.opp_cemetery = list()
         self.sim_fight()
 
-    def _calc_cooldown(self):
-        deck_cost = 0
-        for card in self.player.cards:
-            deck_cost += card.cost
-        return (60 + 2 * deck_cost)/60
-
     def sim_fight(self):
         self._prep_cards()
         while self.player.hp > 0 and self.opp.hp > 0:
@@ -41,6 +35,12 @@ class Fight():
             self.turn += 1
             self._resolve_all_healths()
         self.fight_summary()
+
+    def _calc_cooldown(self):
+        deck_cost = 0
+        for card in self.player.cards:
+            deck_cost += card.cost
+        return (60 + 2 * deck_cost)/60
 
     def fight_summary(self):
         if isinstance(self.opp, DemonPlayer):
@@ -230,7 +230,7 @@ class Fight():
         if dmg_summary[constants.EFFECT_TYPE] is constants.HEAL:
             self._handle_heal(dmg_summary)
             return
-        if dmg_summary[constants.EFFECT_TYPE] is constants.ATTACK_CONDITIONAL:
+        if dmg_summary[constants.EFFECT_TYPE] is constants.ATK_COND:
             self._handle_conditionals(dmg_summary, def_hero)
             return
         if dmg_summary[constants.EFFECT_TYPE] is constants.LACERATION:
@@ -278,7 +278,7 @@ class Fight():
         dmg_done = 0
         if isinstance(dmg_summary, dict):
             if dmg_summary[constants.EFFECT_TYPE] is \
-                    constants.ATTACK_CONDITIONAL:
+                    constants.ATK_COND:
                 dmg_summary[constants.DAMAGE] = dmg_summary[
                     constants.DAMAGE][0]
             if dmg_summary[constants.TARGET] in \
@@ -286,7 +286,7 @@ class Fight():
                 dmg_done += dmg_summary[constants.DAMAGE]
         elif isinstance(dmg_summary, (list, tuple)):
             for dmg in dmg_summary:
-                if dmg[constants.EFFECT_TYPE] is constants.ATTACK_CONDITIONAL:
+                if dmg[constants.EFFECT_TYPE] is constants.ATK_COND:
                     dmg[constants.DAMAGE] = dmg[constants.DAMAGE][0]
                 if dmg[constants.TARGET] in \
                         (constants.ENEMY_HERO, constants.CARD_ACROSS):
@@ -327,8 +327,64 @@ class Fight():
             self.def_card = opp_in_play[self.index]
             self._damage_through_cards(dmg_summary, opp)
 
+    def _handle_all_allies(self, summary):
+        if summary[constants.EFFECT_TYPE] is constants.ATK_BUFF:
+            if self.player_turn:
+                for card in self.player_in_play:
+                    card.atk += summary[constants.EFFECT]
+
+    def _handle_rune_effect(self, summary):
+        if summary[constants.TARGET] is constants.ALL_ALLY_CARDS:
+            self._handle_all_allies(summary)
+            return
+        if summary[constants.TARGET] is constants.CARD_LOWEST_HP:
+            self._handle_lowest_hp(summary)
+            return
+
+    def _check_card_in_cemetary(self, condition):
+        card_type = condition[constants.CARD_TYPE]
+        count = 0
+        if self.player_turn:
+            for card in self.player_cemetery:
+                if card.card_type is card_type:
+                    count += 1
+            if count >= condition[constants.NUM_TO_ACTIVATE]:
+                return True
+        else:
+            for card in self.opp_cemetery:
+                if card.card_type is card_type:
+                    count += 1
+            if count >= condition[constants.NUM_TO_ACTIVATE]:
+                return True
+        return False
+
+    def _rune_should_trigger(self, rune):
+        if rune.times_triggered > rune.max_times:
+            return False
+        triggering_conditions = rune.get_triggering_conditions()
+        for condition in triggering_conditions:
+            if condition[constants.TRIGGERING_CONDITION] is \
+                    constants.CARD_IN_CEMETARY:
+                return self._check_card_in_cemetary(condition)
+            if condition[constants.TRIGGERING_CONDITION] is \
+                    constants.EXCEEDED_ROUNDS:
+                return self.turn > condition[constants.NUM_TO_ACTIVATE]
+
     def _handle_runes(self):
-        pass
+        if self.player_turn:
+            for rune in self.player.runes:
+                if self._rune_should_trigger(rune):
+                    rune_effects = rune.get_effect()
+                    for effect in rune_effects:
+                        self._handle_rune_effect(effect)
+                    rune.times_triggered += 1
+        else:
+            for rune in self.opp.runes:
+                if self._rune_should_trigger(rune):
+                    rune_effects = rune.get_effect()
+                    for effect in rune_effects:
+                        self._handle_rune_effect(effect)
+                    rune.times_triggered += 1
 
     def _prep_turn(self):
         self._put_cards_in_play()

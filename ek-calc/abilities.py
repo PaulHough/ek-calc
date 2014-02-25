@@ -8,7 +8,7 @@ class Ability():
     occurs_once = False
     stacks = False
     num_of_targets = 1
-    effect_type = constants.ATTACK
+    effect_type = constants.ATK
     target = constants.CARD_ACROSS
 
     def __init__(self, rank=None):
@@ -20,7 +20,7 @@ class Ability():
 
 class ArcticPollution(Ability):
     ability_type = constants.DAMAGE
-    effect_type = constants.ATTACK_CONDITIONAL
+    effect_type = constants.ATK_COND
 
     def get_effect(self):
         return .15 * (self.rank + 1)
@@ -147,6 +147,14 @@ class ForestForce(Ability):
         return 25 + self.rank
 
 
+class GroupMorale(Ability):
+    target = constants.ALL_ALLY_CARDS
+    effect_type = constants.ATK_BUFF
+
+    def get_effect(self):
+        return 15 * self.rank
+
+
 class Healing(Ability):
     ability_type = constants.HEAL
     target = constants.CARD_LOWEST_HP_ALLY
@@ -222,7 +230,7 @@ class Snipe(Ability):
 
 class SwampPurity(Ability):
     ability_type = constants.DAMAGE
-    effect_type = constants.ATTACK_CONDITIONAL
+    effect_type = constants.ATK_COND
 
     def get_effect(self):
         return .15 * (self.rank + 1)

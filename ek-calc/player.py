@@ -3,10 +3,13 @@ from math import floor
 
 class Player():
     def __init__(self, lvl=None):
+        if lvl <= 0:
+            raise ValueError('Player level must be 1 or greater.')
         self.lvl = lvl
         self.hp = self._get_health()
         self.cards = list()
         self.card_order = list()
+        self.runes = list()
 
     def _get_health(self):
         bp = int(floor((self.lvl - 1)/10 + 1)*10)
@@ -32,6 +35,9 @@ class Player():
     def get_num_of_cards_allowed(self):
         return self._num_of_cards_allowed()
 
+    def get_num_of_runes_allowed(self):
+        return self._num_of_runes_allowed()
+
     def _num_of_cards_allowed(self):
         num_of_cards = 3
         if self.lvl >= 3:
@@ -50,6 +56,19 @@ class Player():
             num_of_cards += 1
         return num_of_cards
 
+    def _num_of_runes_allowed(self):
+        if self.lvl < 50:
+            return int(floor(self.lvl/10))
+        return 4
+
+    def assign_rune(self, new_rune):
+        if len(self.runes) + 1 > self._num_of_runes_allowed():
+            raise OverflowError('Too many runes for this level of player.')
+        for rune in self.runes:
+            if new_rune.name == rune.name:
+                raise ValueError('Only one of each rune is allowed.')
+        self.runes.append(new_rune)
+
     def assign_card(self, new_card):
         if len(self.cards) + 1 > self._num_of_cards_allowed():
             raise OverflowError('Too many cards for this level of player.')
@@ -57,7 +76,8 @@ class Player():
         for card in self.cards:
             cost += card.cost
         if cost > self._num_of_cost_allowed():
-            raise OverflowError('Cards cost too much for this level of player.')
+            raise OverflowError(
+                'Cards cost too much for this level of player.')
         self.cards.append(new_card)
 
     def __repr__(self):

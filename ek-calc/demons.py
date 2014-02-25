@@ -6,7 +6,7 @@ from cards import Card
 
 class DemonPlayer(Player):
     def __init__(self):
-        super(DemonPlayer, self).__init__(lvl=100)
+        super(DemonPlayer, self).__init__(lvl=1000)
 
     def _num_of_cards_allowed(self):
         return 1
@@ -72,7 +72,7 @@ class DarkTitan(Demon):
             constants.TARGET: laceration.target,
             constants.REMAINING: None
         }, {
-            constants.EFFECT_TYPE: constants.ATTACK,
+            constants.EFFECT_TYPE: constants.ATK,
             constants.DAMAGE: self.atk,
             constants.TARGET: constants.CARD_ACROSS
         }]
@@ -113,7 +113,7 @@ class Deucalion(Demon):
             constants.DAMAGE: 0,
             constants.TARGET: exile.target
         }, {
-            constants.EFFECT_TYPE: constants.ATTACK,
+            constants.EFFECT_TYPE: constants.ATK,
             constants.DAMAGE: self.atk,
             constants.TARGET: constants.CARD_ACROSS
         }]
@@ -156,7 +156,7 @@ class Mars(Demon):
             constants.TARGET: fire_god.target,
             constants.REMAINING: None
         }, {
-            constants.EFFECT_TYPE: constants.ATTACK,
+            constants.EFFECT_TYPE: constants.ATK,
             constants.DAMAGE: self.atk,
             constants.TARGET: constants.CARD_ACROSS
         }]
@@ -198,7 +198,7 @@ class Pandarus(Demon):
             constants.DAMAGE: toxic_clouds.get_effect(),
             constants.TARGET: toxic_clouds.target
         }, {
-            constants.EFFECT_TYPE: constants.ATTACK,
+            constants.EFFECT_TYPE: constants.ATK,
             constants.DAMAGE: self.atk,
             constants.TARGET: constants.CARD_ACROSS
         }, {
@@ -244,7 +244,7 @@ class PlagueOgryn(Demon):
             constants.DAMAGE: toxic_clouds.get_effect(),
             constants.TARGET: toxic_clouds.target
         }, {
-            constants.EFFECT_TYPE: constants.ATTACK,
+            constants.EFFECT_TYPE: constants.ATK,
             constants.DAMAGE: self.atk,
             constants.TARGET: constants.CARD_ACROSS
         }, {
@@ -290,7 +290,7 @@ class SeaKing(Demon):
             constants.DAMAGE: devils_blade.get_effect(),
             constants.TARGET: devils_blade.target
         }, {
-            constants.EFFECT_TYPE: constants.ATTACK,
+            constants.EFFECT_TYPE: constants.ATK,
             constants.DAMAGE: self.atk,
             constants.TARGET: constants.CARD_ACROSS
         }]
