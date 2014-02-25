@@ -118,10 +118,11 @@ class Fight():
             if hasattr(card, 'resists_exile'):
                 return
             card.hp = card.get_base_hp()
-            card.effects = dict()
+            card.clear_stun_effects()
             card.wait = card.starting_wait
             self.player.card_order.append(card)
             self.player_in_play.remove(card)
+            self._handle_exiting_effects(card)
 
     def _handle_lowest_hp(self, dmg_summary):
         card = self.def_card
@@ -137,9 +138,12 @@ class Fight():
                 except IndexError:
                     return
         low_hp_card = self._get_lowest_hp(card)
-        low_hp_card.hp -= dmg_summary[constants.DAMAGE]
+        if constants.HEAL in dmg_summary:
+            low_hp_card.receive_heal(dmg_summary[constants.HEAL])
+        else:
+            low_hp_card.hp -= dmg_summary[constants.DAMAGE]
 
-    def _handle_conditionals(self, dmg_summary):
+    def _handle_conditionals(self, dmg_summary, def_hero):
         if dmg_summary[constants.TARGET] is constants.CARD_ACROSS:
             if dmg_summary[constants.CONDITION] is constants.CONDITION_TYPE:
                 if self.def_card.card_type == \
@@ -149,6 +153,9 @@ class Fight():
                 else:
                     dmg_summary[constants.DAMAGE] = dmg_summary[
                         constants.DAMAGE][0]
+            if self.def_card is None or self.def_card.is_dead():
+                self._direct_damage(dmg_summary, def_hero)
+                return
             reflect_summary = self.def_card.handle_abilities_defense(
                 dmg_summary)
             self.card.hp -= self._handle_reflect_summary(reflect_summary)
@@ -171,11 +178,49 @@ class Fight():
             reflect_summary = card.handle_abilities_defense(dmg_summary)
             self.card.hp -= self._handle_reflect_summary(reflect_summary)
 
+    def _handle_damage_to_all(self, dmg_summary):
+        if dmg_summary[constants.EFFECT_TYPE] is constants.PERSISTENT_EFFECTS:
+            if self.player_turn:
+                for card in self.opp_in_play:
+                    card.add_effect(dmg_summary)
+            else:
+                for card in self.player_in_play:
+                    card.add_effect(dmg_summary)
+        else:
+            if self.player_turn:
+                for card in self.opp_in_play:
+                    card.handle_abilities_defense(dmg_summary)
+            else:
+                for card in self.player_in_play:
+                    card.handle_abilities_defense(dmg_summary)
+
+    def _handle_trap(self, dmg_summary):
+        if dmg_summary[constants.TARGET] is constants.ENEMY_MULTIPLE:
+            num_of_targets = dmg_summary.get(constants.NUM_OF_TARGETS, 0)
+            if self.player_turn:
+                possible_choices = deepcopy(self.opp_in_play)
+            else:
+                possible_choices = deepcopy(self.player_in_play)
+            for target in range(0, num_of_targets):
+                if len(possible_choices) == 0:
+                    return
+                card = random.choice(possible_choices)
+                possible_choices.remove(card)
+                card.add_effect(dmg_summary)
+
+    def _handle_laceration(self, dmg_summary):
+        if dmg_summary[constants.TARGET] is constants.CARD_ACROSS:
+            self.def_card.add_effect(dmg_summary)
+
     def _resolve_damage_through_cards(self, dmg_summary, def_hero):
         if dmg_summary[constants.EFFECT_TYPE] is constants.HEAL:
             self._handle_heal(dmg_summary)
+            return
         if dmg_summary[constants.EFFECT_TYPE] is constants.ATTACK_CONDITIONAL:
-            self._handle_conditionals(dmg_summary)
+            self._handle_conditionals(dmg_summary, def_hero)
+            return
+        if dmg_summary[constants.EFFECT_TYPE] is constants.LACERATION:
+            self._handle_laceration(dmg_summary)
             return
         if dmg_summary[constants.TARGET] is constants.ENEMY_HERO:
             self._direct_damage(dmg_summary, def_hero)
@@ -184,23 +229,29 @@ class Fight():
             if self.def_card is None or self.def_card.is_dead():
                 self._direct_damage(dmg_summary, def_hero)
                 return
+            if dmg_summary[constants.EFFECT_TYPE] is constants.EXILE:
+                self._exile_card(self.def_card)
+                self.def_card = None
+                return
         if dmg_summary[constants.TARGET] is constants.CARD_LOWEST_HP:
             self._handle_lowest_hp(dmg_summary)
             return
         if dmg_summary[constants.TARGET] is constants.ENEMY_RANDOM:
             self._handle_random_damage(dmg_summary)
-        else:
-            if self.def_card is None:
-                self._direct_damage(dmg_summary, def_hero)
-                return
-            if dmg_summary[constants.EFFECT_TYPE] is constants.EXILE:
-                self._exile_card(self.def_card)
-                self.def_card = None
-                return
+            return
+        if dmg_summary[constants.TARGET] is constants.ALL_ENEMY_CARDS:
+            self._handle_damage_to_all(dmg_summary)
+            return
+        if dmg_summary[constants.EFFECT_TYPE] is constants.TRAP:
+            self._handle_trap(dmg_summary)
+            return
+        if self.def_card is None:
+            self._direct_damage(dmg_summary, def_hero)
+            return
 
-            reflect_summary = self.def_card.handle_abilities_defense(
-                dmg_summary)
-            self.card.hp -= self._handle_reflect_summary(reflect_summary)
+        reflect_summary = self.def_card.handle_abilities_defense(
+            dmg_summary)
+        self.card.hp -= self._handle_reflect_summary(reflect_summary)
 
     def _direct_damage(self, dmg_summary, def_hero):
         dmg_done = 0

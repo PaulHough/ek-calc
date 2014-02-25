@@ -27,7 +27,7 @@ class ChainLightning(Ability):
     target = constants.ENEMY_RANDOM
     num_of_targets = 3
     attack_prevention = .4
-    element_type = constants.LIGHTNING
+    effect_type = constants.SPELL
 
     def get_effect(self):
         return 25 * self.rank
@@ -41,6 +41,22 @@ class Concentration(Ability):
 class CounterAttack(Ability):
     def get_effect(self):
         return 30 * self.rank
+
+
+class Curse(Ability):
+    target = constants.ENEMY_HERO
+
+    def get_effect(self):
+        return 40 * self.rank
+
+
+class Destroy(Ability):
+    ability_type = constants.CARD_MANIPULATION
+    effect_type = constants.DESTROY
+    target = constants.ENEMY_RANDOM
+
+    def get_effect(self):
+        pass
 
 
 class DevilsArmor(Ability):
@@ -86,12 +102,20 @@ class Exile(Ability):
 
 class Fireball(Ability):
     target = constants.ENEMY_RANDOM
-    element_type = constants.FIRE
+    effect_type = constants.SPELL
 
     def get_effect(self):
         low = 25 * self.rank
         high = 50 * self.rank
         return random.uniform(low, high)
+
+
+class FireGod(Ability):
+    target = constants.ALL_ENEMY_CARDS
+    effect_type = constants.BURN
+
+    def get_effect(self):
+        return 20 * self.rank
 
 
 class ForestForce(Ability):
@@ -107,7 +131,7 @@ class Healing(Ability):
     effect_type = constants.HEAL
 
     def get_effect(self):
-        return -25 * self.rank
+        return 25 * self.rank
 
 
 class Immunity(Ability):
@@ -121,9 +145,10 @@ class Immunity(Ability):
 
 class Laceration(Ability):
     ability_type = constants.CARD_MANIPULATION
+    effect_type = constants.LACERATION
 
     def get_effect(self):
-        return constants.NO_HEALS
+        pass
 
 
 class Parry(Ability):
@@ -162,6 +187,7 @@ class Retaliation(Ability):
 
 class Snipe(Ability):
     target = constants.CARD_LOWEST_HP
+    effect_type = constants.PHYSICAL
 
     def get_effect(self):
         return 30 * self.rank
@@ -173,3 +199,28 @@ class SwampPurity(Ability):
 
     def get_effect(self):
         return .15 * (self.rank + 1)
+
+
+class Thunderbolt(Ability):
+    target = constants.ENEMY_RANDOM
+    attack_prevention = .5
+    effect_type = constants.SPELL
+
+    def get_effect(self):
+        return 25 * self.rank
+
+
+class ToxicClouds(Ability):
+    target = constants.ALL_ENEMY_CARDS
+    effect_type = constants.SPELL
+
+    def get_effect(self):
+        return 20 * self.rank
+
+
+class Trap(Ability):
+    target = constants.ENEMY_MULTIPLE
+    effect_type = constants.TRAP
+
+    def get_effect(self):
+        return self.rank

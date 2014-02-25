@@ -1,9 +1,11 @@
 
 NO_REFLECTED_DAMAGE = 0
 
+ALL_ENEMY_CARDS = 'all_enemy_cards'
 ATTACK = 'attack'
 ATTACK_CONDITIONAL = 'attack_conditional'
 ATTACK_PREVENTION = 'attack_prevention'
+BURN = 'burn'
 CARD_ACROSS = 'card_across'
 CARD_ADJACENT = 'card_adjacent'
 CARD_LOWEST_HP = 'card_lowest_hp'
@@ -15,11 +17,12 @@ CONDITION_PARAMETER = 'condition_parameter'
 DAMAGE_MITIGATION = 'damage_mitigation'
 DAMAGE = 'damage'
 DEMON = 'demon'
+DESTROY = 'destroy'
 EFFECT = 'effect'
 EFFECT_TYPE = 'effect_type'
-ELEMENT_TYPE = 'element_type'
 ENEMY = 'enemy'
 ENEMY_HERO = 'enemy_hero'
+ENEMY_MULTIPLE = 'enemy_multiple'
 ENEMY_RANDOM = 'enemy_random'
 EXILE = 'exile'
 FIRE = 'fire'
@@ -28,21 +31,34 @@ HEAL = 'heal'
 HP = 'hp'
 ICE = 'ice'
 IMMUNE = 'immune'
+LACERATION = 'laceration'
 LIGHTNING = 'lightning'
 MOUNTAIN = 'mountain'
 NO_HEALS = 'no_heals'
 NUM_OF_TARGETS = 'num_of_targets'
 OTHER = 'other'
 OTHER_FOREST_ALLIES = 'other_forest_allies'
+PHYSICAL = 'physical'
+PLAGUE = 'plague'
+POISON = 'poison'
+REMAINING = 'remaining'
 RESURRECTION = 'resurrection'
 SACRIFICE = 'sacrifice'
 SEAL = 'seal'
 SELF = 'self'
+SMOG = 'smog'
+SPELL = 'spell'
 STUN = 'stun'
 SWAMP = 'swamp'
 TARGET = 'target'
 TURN = 'turn'
 TRAP = 'trap'
+VENOM = 'venom'
 
-IMMUNITY_EFFECT_TYPES = (ICE, LIGHTNING, TRAP, SEAL, SACRIFICE)
+IMMUNITY_EFFECT_TYPES = (
+    SPELL, ICE, LIGHTNING, TRAP, SEAL, SACRIFICE, EXILE,
+    DESTROY
+)
 DAMAGE_TO_HERO_EFFECT_TYPES = (ATTACK, ENEMY_HERO)
+PERSISTENT_EFFECTS = (BURN, SMOG, POISON, VENOM)
+STUN_TYPES = (TRAP, STUN)

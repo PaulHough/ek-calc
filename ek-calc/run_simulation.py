@@ -11,7 +11,7 @@ from my_cards import my_cards
 import cards
 
 DEBUG = False
-PLAYER_LVL = 100
+PLAYER_LVL = 33
 
 
 def get_possible_decks():
@@ -44,7 +44,7 @@ def create_new_players(deck):
     for card in deck:
         player.assign_card(card)
     demon_player = demons.DemonPlayer()
-    demon_player.assign_card(demons.Deucalion())
+    demon_player.assign_card(demons.PlagueOgryn())
     return player, demon_player
 
 

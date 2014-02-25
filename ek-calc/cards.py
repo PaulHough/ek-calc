@@ -8,11 +8,13 @@ class Card():
     should_res = False
     stunned = False
     prevention = False
+    lacerate = False
     first_attack = True
     base_atk = 0
     hp_inc = 0
     base_hp = 0
     atk_inc = 0
+    effects = list()
 
     def __init__(self, lvl=0):
         self.lvl = lvl
@@ -31,22 +33,65 @@ class Card():
     def _get_atk(self):
         return self.base_atk + self.atk_inc * self.lvl
 
+    def add_effect(self, dmg_summary):
+        if dmg_summary[constants.EFFECT_TYPE] in constants.STUN_TYPES:
+            self.stunned = True
+        self.effects.append(dmg_summary)
+
+    def _resolve_effects(self):
+        for effect in self.effects:
+            if effect.get(constants.REMAINING) is None:
+                self.handle_abilities_defense(effect)
+            elif effect.get(constants.REMAINING) > 0:
+                self.handle_abilities_defense(effect)
+                effect[constants.REMAINING] -= 1
+
     def handle_abilities_offense(self):
+        dmg_summary = self._get_damage_summary()
+        if self.stunned:
+            dmg_summary = list()
+        self._resolve_effects()
+        self.clear_stun_effects()
+        return dmg_summary
+
+    def _handle_lvl_5_ability(self):
+        raise NotImplementedError('This card must have a level 5 ability.')
+
+    def _handle_lvl_10_ability(self):
+        raise NotImplementedError('This card must have a level 10 ability.')
+
+    def _get_damage_summary(self):
         raise NotImplementedError('This card must have offensive abilities.')
 
     def handle_abilities_defense(self, dmg_summary):
-        raise NotImplementedError('This card must have defensive abilities.')
+        self._handle_stunning_effects(dmg_summary)
+        return self._get_reflect_summary(dmg_summary)
+
+    def _get_reflect_summary(self, dmg_summary):
+        self.hp -= dmg_summary.get(constants.DAMAGE, 0)
+        return list()
 
     def is_dead(self):
         return self.hp <= 0
 
-    def _handle_effects(self):
+    def clear_stun_effects(self):
         if self.stunned:
             self.stunned = False
             return True
         if self.prevention:
             self.prevention = False
             return False
+
+    def receive_heal(self, heal):
+        if self.lacerate:
+            return
+        self.hp += heal
+
+    def _handle_stunning_effects(self, dmg_summary):
+        self.stunned = dmg_summary.get(constants.STUN, 0) > \
+            random.uniform(0, 1)
+        self.prevention = dmg_summary.get(constants.ATTACK_PREVENTION, 0) > \
+            random.uniform(0, 1)
 
     def __str__(self):
         raise NotImplementedError(
@@ -55,6 +100,60 @@ class Card():
     def __repr__(self):
         raise NotImplementedError(
             'Define how this card will display in results')
+
+
+class BronzeDragon(Card):
+    def __init__(self, lvl=0):
+        self.card_type = constants.FOREST
+        self.stars = 4
+        self.wait = 4
+        self.starting_wait = 4
+        self.cost = 13
+        self.base_hp = 780
+        self.hp_inc = 48
+        self.base_atk = 200
+        self.atk_inc = 20
+        super(BronzeDragon, self).__init__(lvl)
+
+    def _get_reflect_summary(self, dmg_summary):
+        if self.lvl == 10 and \
+                dmg_summary[constants.EFFECT_TYPE] is constants.ATTACK:
+            dodge_chance = abilities.Dodge(8).get_effect()
+            self.hp -= dodge_chance * dmg_summary.get(constants.DAMAGE, 0)
+        else:
+            self.hp -= dmg_summary.get(constants.DAMAGE, 0)
+        return list()
+
+    def _handle_lvl_5_ability(self):
+        if abilities.Resurrection(6).get_effect():
+            self.should_res = True
+
+    def _handle_lvl_10_ability(self):
+        pass
+
+    def _get_damage_summary(self):
+        thunderbolt = abilities.Thunderbolt(4)
+        dmg_summary = [{
+            constants.EFFECT_TYPE: thunderbolt.effect_type,
+            constants.DAMAGE: thunderbolt.get_effect(),
+            constants.TARGET: thunderbolt.target
+        }]
+        for_dmg = {
+            constants.EFFECT_TYPE: constants.ATTACK,
+            constants.DAMAGE: self.atk,
+            constants.TARGET: constants.CARD_ACROSS
+        }
+        if not self.prevention:
+            dmg_summary.append(for_dmg)
+        return dmg_summary
+
+    def __str__(self):
+        return 'Headless Horseman - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
+
+    def __repr__(self):
+        return 'Headless Horseman - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
 
 
 class HeadlessHorseman(Card):
@@ -70,23 +169,21 @@ class HeadlessHorseman(Card):
         self.atk_inc = 29
         super(HeadlessHorseman, self).__init__(lvl)
 
-    def handle_abilities_defense(self, dmg_summary):
-        self.hp -= abilities.Dodge(3).get_effect() * \
-                   dmg_summary[constants.DAMAGE]
-        self.stunned = dmg_summary.get(constants.STUN, 0) > \
-            random.uniform(0, 1)
-        self.prevention = dmg_summary.get(constants.ATTACK_PREVENTION, 0) > \
-            random.uniform(0, 1)
-        reflect_summary = [
-            {
-                constants.EFFECT_TYPE: None,
-                constants.DAMAGE: 0,
-                constants.TARGET: None
-            }
-        ]
-        return reflect_summary
+    def _get_reflect_summary(self, dmg_summary):
+        if dmg_summary[constants.EFFECT_TYPE] is constants.ATTACK:
+            dodge_chance = abilities.Dodge(3).get_effect()
+            self.hp -= dodge_chance * dmg_summary.get(constants.DAMAGE, 0)
+        else:
+            self.hp -= dmg_summary.get(constants.DAMAGE, 0)
+        return list()
 
-    def handle_abilities_offense(self):
+    def _handle_lvl_5_ability(self):
+        pass
+
+    def _handle_lvl_10_ability(self):
+        pass
+
+    def _get_damage_summary(self):
         dmg = self.atk
         if self.lvl >= 5:
             if self.first_attack:
@@ -99,10 +196,8 @@ class HeadlessHorseman(Card):
             constants.DAMAGE: dmg,
             constants.TARGET: constants.CARD_ACROSS
         }]
-        if self.stunned or self.prevention:
-            self._handle_effects()
+        if self.prevention:
             return list()
-        self._handle_effects()
         return dmg_summary
 
     def __str__(self):
@@ -127,49 +222,39 @@ class SkeletonKing(Card):
         self.atk_inc = 40
         super(SkeletonKing, self).__init__(lvl)
 
-    def handle_abilities_defense(self, dmg_summary):
-        self.hp -= dmg_summary[constants.DAMAGE]
-        self.stunned = dmg_summary.get(constants.STUN, 0) > \
-            random.uniform(0, 1)
-        self.prevention = dmg_summary.get(constants.ATTACK_PREVENTION, 0) > \
-            random.uniform(0, 1)
+    def _get_reflect_summary(self, dmg_summary):
+        self.hp -= dmg_summary.get(constants.DAMAGE, 0)
         if self.hp <= 0 and self.lvl == 10:
-            if abilities.Resurrection(7).get_effect():
-                self.should_res = True
-        reflect_summary = [
-            {
-                constants.EFFECT_TYPE: None,
-                constants.DAMAGE: 0,
-                constants.TARGET: None
-            }
-        ]
-        return reflect_summary
+            self._handle_lvl_10_ability()
+        return list()
 
-    def handle_abilities_offense(self):
+    def _handle_lvl_5_ability(self):
         snipe = abilities.Snipe(9)
-        dmg_summary = [{
+        return {
             constants.EFFECT_TYPE: snipe.effect_type,
             constants.DAMAGE: snipe.get_effect(),
             constants.TARGET: snipe.target
-        }]
+        }
+
+    def _handle_lvl_10_ability(self):
+        if abilities.Resurrection(7).get_effect():
+            self.should_res = True
+
+    def _get_damage_summary(self):
+        dmg_summary = list()
         dmg = self.atk
-        if self.lvl >= 5:
-            if self.first_attack:
-                dmg += abilities.Backstab(8).get_effect()
-                self.first_attack = False
+        if self.first_attack:
+            dmg += abilities.Backstab(8).get_effect()
+            self.first_attack = False
         for_dmg = {
             constants.EFFECT_TYPE: constants.ATTACK,
             constants.DAMAGE: dmg,
             constants.TARGET: constants.CARD_ACROSS
         }
-        if self.stunned:
-            self._handle_effects()
-            return list()
-        if self.prevention:
-            self._handle_effects()
-            return dmg_summary
-        dmg_summary.append(for_dmg)
-        self._handle_effects()
+        if self.lvl >= 5:
+            dmg_summary.append(self._handle_lvl_5_ability())
+        if not self.prevention:
+            dmg_summary.append(for_dmg)
         return dmg_summary
 
     def __str__(self):
@@ -195,64 +280,40 @@ class SpitfireWorm(Card):
         super(SpitfireWorm, self).__init__(lvl)
 
     def enter_effect(self):
-        forest_force = abilities.ForestForce(4)
-        effect_summary = [{
-            constants.TARGET: forest_force.target,
-            constants.EFFECT: forest_force.get_effect()
-        }]
-        return effect_summary
+        if self.lvl == 10:
+            return self._handle_lvl_10_ability()
 
     def exit_effect(self):
+        if self.lvl == 10:
+            return self._handle_lvl_10_ability(-1)
+
+    def _handle_lvl_5_ability(self):
+        self.receive_heal(abilities.Rejuvenation(4).get_effect())
+
+    def _handle_lvl_10_ability(self, multiplier=1):
         forest_force = abilities.ForestForce(4)
-        effect_summary = [{
+        return [{
             constants.TARGET: forest_force.target,
-            constants.EFFECT: -1 * forest_force.get_effect()
+            constants.EFFECT: multiplier * forest_force.get_effect()
         }]
-        return effect_summary
 
-    def handle_abilities_defense(self, dmg_summary):
-        self.hp -= dmg_summary[constants.DAMAGE]
-        self.stunned = dmg_summary.get(constants.STUN, 0) > \
-            random.uniform(0, 1)
-        self.prevention = dmg_summary.get(constants.ATTACK_PREVENTION, 0) > \
-            random.uniform(0, 1)
-        if self.hp <= 0 and self.lvl == 10:
-            if abilities.Resurrection(7).get_effect():
-                self.should_res = True
-        reflect_summary = [
-            {
-                constants.EFFECT_TYPE: None,
-                constants.DAMAGE: 0,
-                constants.TARGET: None
-            }
-        ]
-        return reflect_summary
-
-    def handle_abilities_offense(self):
+    def _get_damage_summary(self):
         fireball = abilities.Fireball(3)
         dmg_summary = [{
             constants.EFFECT_TYPE: fireball.effect_type,
             constants.DAMAGE: fireball.get_effect(),
             constants.TARGET: fireball.target,
             constants.NUM_OF_TARGETS: fireball.num_of_targets,
-            constants.ELEMENT_TYPE: fireball.element_type
         }]
         for_dmg = {
             constants.EFFECT_TYPE: constants.ATTACK,
             constants.DAMAGE: self.atk,
             constants.TARGET: constants.CARD_ACROSS
         }
-        if self.stunned:
-            self._handle_effects()
-            return list()
-        if self.prevention:
-            self._handle_effects()
-            if self.lvl >= 5:
-                self.hp += abilities.Rejuvenation(4).get_effect()
-            return dmg_summary
-        self.hp += abilities.Rejuvenation(4).get_effect()
-        dmg_summary.append(for_dmg)
-        self._handle_effects()
+        if not self.prevention:
+            dmg_summary.append(for_dmg)
+        if self.lvl >= 5:
+            self._handle_lvl_5_ability()
         return dmg_summary
 
     def __str__(self):
@@ -277,26 +338,32 @@ class Troglodyte(Card):
         self.atk_inc = 23
         super(Troglodyte, self).__init__(lvl)
 
-    def handle_abilities_defense(self, dmg_summary):
-        self.hp -= dmg_summary[constants.DAMAGE]
-        self.stunned = dmg_summary.get(constants.STUN, 0) > \
-            random.uniform(0, 1)
-        self.prevention = dmg_summary.get(constants.ATTACK_PREVENTION, 0) > \
-            random.uniform(0, 1)
-        reflect_summary = [
-            {
-                constants.EFFECT_TYPE: None,
-                constants.DAMAGE: 0,
-                constants.TARGET: None
-            }
-        ]
-        return reflect_summary
+    def _handle_lvl_5_ability(self):
+        swamp_purity = abilities.SwampPurity(5)
+        dmg2 = self.atk * (1 + swamp_purity.get_effect())
+        return {
+            constants.EFFECT_TYPE: swamp_purity.effect_type,
+            constants.DAMAGE: (self.atk, dmg2),
+            constants.TARGET: swamp_purity.target,
+            constants.CONDITION: constants.CONDITION_TYPE,
+            constants.CONDITION_PARAMETER: constants.SWAMP
+        }
 
-    def handle_abilities_offense(self):
+    def _handle_lvl_10_ability(self):
+        chain_lightning = abilities.ChainLightning(6)
+        return {
+            constants.EFFECT_TYPE: chain_lightning.effect_type,
+            constants.DAMAGE: chain_lightning.get_effect(),
+            constants.TARGET: chain_lightning.target,
+            constants.NUM_OF_TARGETS: chain_lightning.num_of_targets,
+            constants.ATTACK_PREVENTION: chain_lightning.attack_prevention,
+        }
+
+    def _get_damage_summary(self):
         healing = abilities.Healing(6)
         dmg_summary = [{
             constants.EFFECT_TYPE: healing.effect_type,
-            constants.DAMAGE: healing.get_effect(),
+            constants.HEAL: healing.get_effect(),
             constants.TARGET: healing.target
         }]
         for_dmg = {
@@ -305,32 +372,11 @@ class Troglodyte(Card):
             constants.TARGET: constants.CARD_ACROSS,
         }
         if self.lvl >= 5:
-            swamp_purity = abilities.SwampPurity(5)
-            dmg2 = self.atk * (1 + swamp_purity.get_effect())
-            for_dmg = {
-                constants.EFFECT_TYPE: swamp_purity.effect_type,
-                constants.DAMAGE: (self.atk, dmg2),
-                constants.TARGET: swamp_purity.target,
-                constants.CONDITION: constants.CONDITION_TYPE,
-                constants.CONDITION_PARAMETER: constants.SWAMP
-            }
+            for_dmg = self._handle_lvl_5_ability()
         if self.lvl == 10:
-            chain_lightning = abilities.ChainLightning(6)
-            dmg_summary.append({
-                constants.EFFECT_TYPE: chain_lightning.effect_type,
-                constants.DAMAGE: chain_lightning.get_effect(),
-                constants.TARGET: chain_lightning.target,
-                constants.NUM_OF_TARGETS: chain_lightning.num_of_targets,
-                constants.ATTACK_PREVENTION: chain_lightning.attack_prevention,
-                constants.ELEMENT_TYPE: chain_lightning.element_type
-            })
-        if self.stunned:
-            self._handle_effects()
-            return list()
-        if self.prevention:
-            self._handle_effects()
-            return dmg_summary
-        dmg_summary.append(for_dmg)
+            dmg_summary.append(self._handle_lvl_10_ability())
+        if not self.prevention:
+            dmg_summary.append(for_dmg)
         return dmg_summary
 
     def __str__(self):
@@ -355,18 +401,26 @@ class WoodElfArcher(Card):
         self.atk_inc = 24
         super(WoodElfArcher, self).__init__(lvl)
 
-    def handle_abilities_defense(self, dmg_summary):
-        self.hp -= dmg_summary[constants.DAMAGE]
-        reflect_summary = [
-            {
-                constants.EFFECT_TYPE: None,
-                constants.DAMAGE: 0,
-                constants.TARGET: None
-            }
-        ]
-        return reflect_summary
+    def _handle_lvl_5_ability(self):
+        swamp_purity = abilities.SwampPurity(5)
+        dmg2 = self.atk * (1 + swamp_purity.get_effect())
+        return {
+            constants.EFFECT_TYPE: swamp_purity.effect_type,
+            constants.DAMAGE: (self.atk, dmg2),
+            constants.TARGET: swamp_purity.target,
+            constants.CONDITION: constants.CONDITION_TYPE,
+            constants.CONDITION_PARAMETER: constants.SWAMP
+        }
 
-    def handle_abilities_offense(self):
+    def _handle_lvl_10_ability(self):
+        snipe = abilities.Snipe(5)
+        return {
+            constants.EFFECT_TYPE: snipe.effect_type,
+            constants.DAMAGE: snipe.get_effect(),
+            constants.TARGET: snipe.target
+        }
+
+    def _get_damage_summary(self):
         snipe = abilities.Snipe(2)
         dmg_summary = [{
             constants.EFFECT_TYPE: snipe.effect_type,
@@ -379,29 +433,11 @@ class WoodElfArcher(Card):
             constants.TARGET: constants.CARD_ACROSS,
         }
         if self.lvl >= 5:
-            swamp_purity = abilities.SwampPurity(5)
-            dmg2 = self.atk * (1 + swamp_purity.get_effect())
-            for_dmg = {
-                constants.EFFECT_TYPE: swamp_purity.effect_type,
-                constants.DAMAGE: (self.atk, dmg2),
-                constants.TARGET: swamp_purity.target,
-                constants.CONDITION: constants.CONDITION_TYPE,
-                constants.CONDITION_PARAMETER: constants.SWAMP
-            }
+            for_dmg = self._handle_lvl_5_ability()
         if self.lvl == 10:
-            snipe = abilities.Snipe(5)
-            dmg_summary.append({
-                constants.EFFECT_TYPE: snipe.effect_type,
-                constants.DAMAGE: snipe.get_effect(),
-                constants.TARGET: snipe.target
-            })
-        if self.stunned:
-            self._handle_effects()
-            return list()
-        if self.prevention:
-            self._handle_effects()
-            return dmg_summary
-        dmg_summary.append(for_dmg)
+            dmg_summary.append(self._handle_lvl_10_ability())
+        if not self.prevention:
+            dmg_summary.append(for_dmg)
         return dmg_summary
 
     def __str__(self):

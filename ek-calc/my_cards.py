@@ -10,6 +10,7 @@ my_cards = (
     cards.WoodElfArcher(10),
     cards.Troglodyte(10),
     cards.SpitfireWorm(10),
+    cards.BronzeDragon(10),
 )
 
 
