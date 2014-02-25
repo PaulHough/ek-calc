@@ -97,7 +97,7 @@ def handle_single_deck_simulation(cnt=1):
     dmg_done = 0
     dmg_per_min = 0
     for _ in itertools.repeat(None, cnt):
-        player, demon_player = create_new_players(player_deck)
+        player, demon_player = create_new_players(player_deck, player_runes)
         fight = Fight(player, demon_player)
         dmg_done += fight.dmg_done
         dmg_per_min += fight.dmg_per_min
