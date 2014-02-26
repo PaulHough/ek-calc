@@ -261,6 +261,13 @@ class Fight():
             self.def_card = None
             return
 
+        starting_hp = self.def_card.hp
+        reflect_summary = self.def_card.handle_abilities_defense(dmg_summary)
+        self.card.hp -= self._handle_reflect_summary(reflect_summary)
+        if dmg_summary.get(constants.EXTRA_EFFECT) is constants.BLOODTHIRSTY \
+                and starting_hp - self.def_card.hp > 0:
+            self.card.handle_bloodthirsty()
+
     def _resolve_damage_through_cards(self, dmg_summary, def_hero):
         if dmg_summary[constants.EFFECT_TYPE] is constants.HEAL:
             self._handle_heal(dmg_summary)
@@ -277,9 +284,6 @@ class Fight():
         if dmg_summary[constants.TARGET] is constants.ENEMY_HERO:
             self._direct_damage(dmg_summary, def_hero)
             return
-        if dmg_summary[constants.TARGET] is constants.CARD_ACROSS:
-            self._resolve_damage_to_card_across(dmg_summary, def_hero)
-            return
         if dmg_summary[constants.TARGET] is constants.CARD_LOWEST_HP:
             self._handle_lowest_hp_for_dmg(dmg_summary)
             return
@@ -295,14 +299,8 @@ class Fight():
         if self.def_card is None:
             self._direct_damage(dmg_summary, def_hero)
             return
-
-        starting_hp = self.def_card.hp
-        reflect_summary = self.def_card.handle_abilities_defense(
-            dmg_summary)
-        self.card.hp -= self._handle_reflect_summary(reflect_summary)
-        if dmg_summary.get(constants.EXTRA_EFFECT) is constants.BLOODTHIRSTY \
-                and starting_hp - self.def_card.hp > 0:
-            self.card.handle_bloodthirsty()
+        if dmg_summary[constants.TARGET] is constants.CARD_ACROSS:
+            self._resolve_damage_to_card_across(dmg_summary, def_hero)
 
     def _direct_damage(self, dmg_summary, def_hero):
         dmg_done = 0
