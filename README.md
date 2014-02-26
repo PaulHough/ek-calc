@@ -51,32 +51,37 @@ Due to the immaturity of this project an API hasn't been defined yet.  This shou
 Usage
 -----------------
 
-Currently the usage of the simulator requires some manual entries in the ``run_simulation.py`` file.  Once the project matures the API will be built out to allow for a more elegant interface.
+Currently the usage of the simulator requires some manual entries in the ``my_cards.py`` file.  Once the project matures the API will be built out to allow for a more elegant interface.
 
-Within ``run_simulation.py`` you can create a player and assign cards to the player.  Simply instantiate a player with the desired level.  Then instantiate each card you want the player to have.  Then assign the card to the player.
+Within ``my_cards.py`` you can list cards that will be assigned to a player for the simulation as well as the player level you want used.  Simply list the card as a tuple with the card object and the level of the card.  Then execute the ``run_simulation.py`` script with an argument for the number of simulations per deck you want to run.
 
-This example would create a level 25 player with 2 cards in their deck - a level 1 Headless Horseman and a level 8 Headless Horseman.:
+This example would create a level 25 player.  The simulator will take every deck combination possible with the following cards, and every rune permutation possible (rune order matters) with the runes listed below.:
 
-    player = Player(25)
-
-    card1 = cards.HeadlessHorseman(1)
-    card2 = cards.HeadlessHorseman(8)
-
-    player.assign_card(card1)
-    player.assign_card(card2)
+    player_deck = (
+        (cards.HeadlessHorseman, 10),
+        (cards.HeadlessHorseman, 10),
+        (cards.SkeletonKing, 5),
+        (cards.SkeletonKing, 8),
+        (cards.WoodElfArcher, 6),
+        (cards.WoodElfArcher, 10),
+        (cards.DemonicImp, 8),
+        (cards.DemonicImp, 10),
+    )
     
-Then create an opponent player or demon player in a similar fashion.:
+    player_runes = (
+        (runes.Revival, 1),
+        (runes.Leaf, 4),
+    )
 
-    demon_player = demons.DemonPlayer()
-    
-    demon_card = demons.DarkTitan())
-    
-    demon_player.assign_card(demon_card)
-    
-Since demon players and demon cards have a pre-set level associated with them you do not instantiate them with any level information.
+Once you've defined the above lists just run the simulator.:
 
-Once you've create the player and demons to have the cards you want to simulate just run the simulator.:
+    $ python3 run_simulation.py <num_of_simulations_per_deck>
+    
+Suppose you want to run 100 simulations per deck combination:
 
-    $ python3 run_simulation.py
+    $ python3 run_simulation.py 100
+    
+Be careful with the number of simulations you ask for.  The formula for the number of combinations grows very rapidly (http://en.wikipedia.org/wiki/Combination).  The above example will give 102000 total simulations.
+
     
 
