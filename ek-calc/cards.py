@@ -16,6 +16,7 @@ class Card():
         self.prevention = False
         self.lacerate = False
         self.first_attack = True
+        self.immune = False
         self.effects = list()
 
     def get_base_hp(self):
@@ -31,7 +32,18 @@ class Card():
     def _get_atk(self):
         return self.base_atk + self.atk_inc * self.lvl
 
+    def resists_exile(self):
+        return self.immune
+
+    def resists_destroy(self):
+        return self.immune
+
+    def resists_teleportation(self):
+        return self.immune
+
     def add_effect(self, dmg_summary):
+        if self.immune:
+            return
         if dmg_summary[constants.EFFECT_TYPE] in constants.STUN_TYPES:
             self.stunned = True
         self.effects.append(dmg_summary)
@@ -52,14 +64,14 @@ class Card():
         self.clear_stun_effects()
         return dmg_summary
 
-    def _handle_lvl_5_ability(self):
-        raise NotImplementedError('This card must have a level 5 ability.')
+    def _handle_lvl_5_ability(self, *args, **kwargs):
+        pass
 
-    def _handle_lvl_10_ability(self):
-        raise NotImplementedError('This card must have a level 10 ability.')
+    def _handle_lvl_10_ability(self, *args, **kwargs):
+        pass
 
-    def _get_damage_summary(self):
-        raise NotImplementedError('This card must have offensive abilities.')
+    def _get_damage_summary(self, *args, **kwargs):
+        pass
 
     def handle_bloodthirsty(self):
         pass
@@ -94,13 +106,12 @@ class Card():
         self.prevention = dmg_summary.get(constants.ATK_PREVENTION, 0) > \
             random.uniform(0, 1)
 
-    def __str__(self):
+    def __str__(self, *args, **kwargs):
         raise NotImplementedError(
             'Define how this card will display in results')
 
     def __repr__(self):
-        raise NotImplementedError(
-            'Define how this card will display in results')
+        return self.__str__()
 
 
 class BloodWarrior(Card):
@@ -129,12 +140,6 @@ class BloodWarrior(Card):
             self.hp -= dmg_summary.get(constants.DAMAGE, 0)
         return list()
 
-    def _handle_lvl_5_ability(self):
-        pass
-
-    def _handle_lvl_10_ability(self):
-        pass
-
     def handle_bloodthirsty(self):
         if self.lvl == 10:
             bloodthirsty = abilities.Bloodthirsty(6)
@@ -155,10 +160,6 @@ class BloodWarrior(Card):
         }]
 
     def __str__(self):
-        return 'Blood Warrior - Level: {}  HP: {}  ATK: {}'.\
-            format(self.lvl, self.hp, self.atk)
-
-    def __repr__(self):
         return 'Blood Warrior - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
@@ -186,11 +187,7 @@ class BronzeDragon(Card):
         return list()
 
     def _handle_lvl_5_ability(self):
-        if abilities.Resurrection(6).get_effect():
-            self.should_res = True
-
-    def _handle_lvl_10_ability(self):
-        pass
+        self.should_res = abilities.Resurrection(6).get_effect()
 
     def _get_damage_summary(self):
         thunderbolt = abilities.Thunderbolt(4)
@@ -212,8 +209,56 @@ class BronzeDragon(Card):
         return 'Bronze Dragon - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
-    def __repr__(self):
-        return 'Bronze Dragon - Level: {}  HP: {}  ATK: {}'.\
+
+class DemonicImp(Card):
+    def __init__(self, lvl=0):
+        self.card_type = constants.MOUNTAIN
+        self.stars = 4
+        self.wait = 4
+        self.starting_wait = 4
+        self.cost = 13
+        self.base_hp = 850
+        self.hp_inc = 15
+        self.base_atk = 250
+        self.atk_inc = 26
+        super(DemonicImp, self).__init__(lvl=lvl)
+
+    def _get_reflect_summary(self, dmg_summary):
+        if self.lvl >= 5 and \
+                dmg_summary[constants.EFFECT_TYPE] is constants.ATK:
+            dodge_chance = abilities.Dodge(6).get_effect()
+            self.hp -= dodge_chance * dmg_summary.get(constants.DAMAGE, 0)
+        else:
+            self.hp -= dmg_summary.get(constants.DAMAGE, 0)
+        return list()
+
+    def resists_destroy(self):
+        return True
+
+    def resists_exile(self):
+        return True
+
+    def resists_teleportation(self):
+        return True
+
+    def _handle_lvl_10_ability(self):
+        self.should_res = abilities.Resurrection(6).get_effect()
+
+    def _get_damage_summary(self):
+        dmg = self.atk
+        if self.lvl >= 5:
+            dmg += self.atk * abilities.Concentration(5).get_effect()
+        dmg_summary = {
+            constants.EFFECT_TYPE: constants.ATK,
+            constants.DAMAGE: dmg,
+            constants.TARGET: constants.CARD_ACROSS
+        }
+        if self.prevention:
+            return list()
+        return dmg_summary
+
+    def __str__(self):
+        return 'Demonic Imp - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
 
@@ -234,8 +279,7 @@ class FireKirin(Card):
         self.receive_heal(abilities.Rejuvenation(7).get_effect())
 
     def _handle_lvl_10_ability(self):
-        if abilities.Resurrection(7).get_effect():
-            self.should_res = True
+        self.should_res = abilities.Resurrection(7).get_effect()
 
     def _get_damage_summary(self):
         if self.lvl >= 5:
@@ -259,7 +303,53 @@ class FireKirin(Card):
         return 'Fire Kirin - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
-    def __repr__(self):
+
+class FireDemon(Card):
+    def __init__(self, lvl=0):
+        self.card_type = constants.MOUNTAIN
+        self.stars = 5
+        self.wait = 6
+        self.starting_wait = 6
+        self.cost = 14
+        self.base_hp = 1350
+        self.hp_inc = 36
+        self.base_atk = 350
+        self.atk_inc = 32
+        self.immune = True
+        super(FireDemon, self).__init__(lvl=lvl)
+
+    def _get_reflect_summary(self, dmg_summary):
+        if self.hp > 0 and dmg_summary[constants.EFFECT_TYPE] not in \
+                constants.IMMUNITY_EFFECT_TYPES:
+            self.hp -= dmg_summary[constants.DAMAGE]
+        return list()
+
+    def _handle_lvl_5_ability(self):
+        laceration = abilities.Laceration()
+        return {
+            constants.EFFECT_TYPE: laceration.effect_type,
+            constants.TARGET: laceration.target,
+            constants.REMAINING: None
+        }
+
+    def _handle_lvl_10_ability(self):
+        self.should_res = abilities.Resurrection(7).get_effect()
+
+    def _get_damage_summary(self):
+        dmg_summary = list()
+        if self.lvl >= 5:
+            dmg_summary.append(self._handle_lvl_5_ability())
+        concentration = abilities.Concentration(6)
+        for_dmg = {
+            constants.EFFECT_TYPE: constants.ATK,
+            constants.DAMAGE: self.atk * concentration.get_effect(),
+            constants.TARGET: constants.CARD_ACROSS
+        }
+        if not self.prevention:
+            dmg_summary.append(for_dmg)
+        return dmg_summary
+
+    def __str__(self):
         return 'Fire Kirin - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
@@ -285,12 +375,6 @@ class HeadlessHorseman(Card):
         self.hp -= dmg_summary.get(constants.DAMAGE, 0)
         return list()
 
-    def _handle_lvl_5_ability(self):
-        pass
-
-    def _handle_lvl_10_ability(self):
-        pass
-
     def _get_damage_summary(self):
         dmg = self.atk
         if self.lvl >= 5:
@@ -312,8 +396,50 @@ class HeadlessHorseman(Card):
         return 'Headless Horseman - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
-    def __repr__(self):
-        return 'Headless Horseman - Level: {}  HP: {}  ATK: {}'.\
+
+class MossDragon(Card):
+    def __init__(self, lvl=0):
+        self.card_type = constants.FOREST
+        self.stars = 5
+        self.wait = 6
+        self.starting_wait = 6
+        self.cost = 15
+        self.base_hp = 1380
+        self.hp_inc = 33
+        self.base_atk = 355
+        self.atk_inc = 30
+        self.immune = True
+        super(MossDragon, self).__init__(lvl=lvl)
+
+    def _get_reflect_summary(self, dmg_summary):
+        if self.hp > 0 and dmg_summary[constants.EFFECT_TYPE] not in \
+                constants.IMMUNITY_EFFECT_TYPES:
+            if self.lvl >= 5:
+                self.hp -= self._handle_lvl_5_ability(
+                    dmg_summary[constants.DAMAGE])
+        return list()
+
+    def _handle_lvl_5_ability(self, dmg):
+        parry = abilities.Parry(8)
+        dmg_done = dmg - parry.get_effect()
+        if dmg_done > 0:
+            return dmg_done
+        return 0
+
+    def _get_damage_summary(self):
+        dmg_summary = list()
+        concentration = abilities.Concentration(6)
+        for_dmg = {
+            constants.EFFECT_TYPE: constants.ATK,
+            constants.DAMAGE: self.atk * concentration.get_effect(),
+            constants.TARGET: constants.CARD_ACROSS
+        }
+        if not self.prevention:
+            dmg_summary.append(for_dmg)
+        return dmg_summary
+
+    def __str__(self):
+        return 'Moss Dragon - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
 
@@ -339,12 +465,8 @@ class Necromancer(Card):
             self.hp -= dmg_summary.get(constants.DAMAGE, 0)
         return list()
 
-    def _handle_lvl_5_ability(self):
-        pass
-
     def _handle_lvl_10_ability(self):
-        if abilities.Resurrection(6).get_effect():
-            self.should_res = True
+        self.should_res = abilities.Resurrection(6).get_effect()
 
     def _get_damage_summary(self):
         bite = abilities.Bite(6)
@@ -363,10 +485,6 @@ class Necromancer(Card):
         return dmg_summary
 
     def __str__(self):
-        return 'Necromancer - Level: {}  HP: {}  ATK: {}'.\
-            format(self.lvl, self.hp, self.atk)
-
-    def __repr__(self):
         return 'Necromancer - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
@@ -399,8 +517,7 @@ class SkeletonKing(Card):
         }
 
     def _handle_lvl_10_ability(self):
-        if abilities.Resurrection(7).get_effect():
-            self.should_res = True
+        self.should_res = abilities.Resurrection(7).get_effect()
 
     def _get_damage_summary(self):
         dmg_summary = list()
@@ -420,10 +537,6 @@ class SkeletonKing(Card):
         return dmg_summary
 
     def __str__(self):
-        return 'Skeleton King - Level: {}  HP: {}  ATK: {}'.\
-            format(self.lvl, self.hp, self.atk)
-
-    def __repr__(self):
         return 'Skeleton King - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
@@ -482,10 +595,6 @@ class SpitfireWorm(Card):
         return dmg_summary
 
     def __str__(self):
-        return 'Spitfire Worm - Level: {}  HP: {}  ATK: {}'.\
-            format(self.lvl, self.hp, self.atk)
-
-    def __repr__(self):
         return 'Spitfire Worm - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
@@ -548,10 +657,6 @@ class Troglodyte(Card):
         return 'Troglodyte - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
-    def __repr__(self):
-        return 'Troglodyte - Level: {}  HP: {}  ATK: {}'.\
-            format(self.lvl, self.hp, self.atk)
-
 
 class WoodElfArcher(Card):
     def __init__(self, lvl=0):
@@ -606,9 +711,5 @@ class WoodElfArcher(Card):
         return dmg_summary
 
     def __str__(self):
-        return 'Wood Elf Archer - Level: {}  HP: {}  ATK: {}'.\
-            format(self.lvl, self.hp, self.atk)
-
-    def __repr__(self):
         return 'Wood Elf Archer - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)

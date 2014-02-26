@@ -29,6 +29,7 @@ class Demon(Card):
         self.hp_inc = 0
         self.base_atk = 0
         self.atk_inc = 0
+        self.immune = True
         super(Demon, self).__init__(lvl=10)
 
     def get_base_hp(self):

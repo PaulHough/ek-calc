@@ -11,7 +11,7 @@ from my_cards import player_deck, player_runes
 
 DEBUG = False
 PLAYER_LVL = 100
-DEMON_CARD = demons.Pandarus
+DEMON_CARD = demons.Mars
 
 
 def get_possible_decks():
@@ -33,11 +33,9 @@ def get_possible_runes():
 
 
 def handle_reports(reports):
-    max_dpm = 0
-    best_report = dict()
+    best_report = deepcopy(reports[0])
     for report in reports:
-        if report['dpm'] > max_dpm:
-            max_dpm = report['dpm']
+        if report['dpm'] > best_report['dpm']:
             best_report = deepcopy(report)
     print('\nBest Deck for {}: '.format(DEMON_CARD))
     for i, card in enumerate(best_report['deck']):
@@ -54,8 +52,8 @@ def create_new_players(deck, runes):
     player = Player(PLAYER_LVL)
     for card, lvl in deck:
         player.assign_card(card(lvl))
-    # for rune, lvl in runes:
-    #     player.assign_rune(rune(lvl))
+    for rune, lvl in runes:
+        player.assign_rune(rune(lvl))
     demon_player = demons.DemonPlayer()
     demon_player.assign_card(DEMON_CARD())
     return player, demon_player

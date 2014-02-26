@@ -53,22 +53,22 @@ class Fight():
         for effect in exit_summary:
             self._handle_effect(effect)
 
+    def _put_card_in_cemetery(self, card):
+        self.player_in_play.remove(card)
+        if card.should_res:
+            self.player.card_order.append(card)
+            self._handle_exiting_effects(card)
+            return
+        self.player_cemetery.append(card)
+        self._handle_exiting_effects(card)
+
     def _resolve_all_healths(self):
         for card in self.player_in_play:
             if card.is_dead():
-                self.player_in_play.remove(card)
-                if card.should_res:
-                    self.player.card_order.append(card)
-                    return
-                self.player_cemetery.append(card)
-                self._handle_exiting_effects(card)
+                self._put_card_in_cemetery(card)
         for card in self.opp_in_play:
             if card.is_dead():
-                self.opp_in_play.remove(card)
-                if card.should_res:
-                    self.opp.card_order.append(card)
-                else:
-                    self.opp_cemetery.append(card)
+                self._put_card_in_cemetery(card)
 
     def _damage_adjacent_cards(self, dmg, cards):
         for card in cards:
@@ -113,9 +113,21 @@ class Fight():
                 low_hp_card.hp -= dmg
         return reflect_damage
 
+    def _destroy_card(self, card):
+        if card in self.player_in_play:
+            if card.resists_destroy():
+                return
+            self._put_card_in_cemetery(card)
+
+    def _teleport_card(self, card):
+        if card in self.player_in_play:
+            if card.resists_teleportation():
+                return
+            self._put_card_in_cemetery(card)
+
     def _exile_card(self, card):
         if card in self.player_in_play:
-            if hasattr(card, 'resists_exile'):
+            if card.resists_exile():
                 return
             self.player.card_order.append(card)
             self.player_in_play.remove(card)
@@ -258,6 +270,10 @@ class Fight():
                 return
             if dmg_summary[constants.EFFECT_TYPE] is constants.EXILE:
                 self._exile_card(self.def_card)
+                self.def_card = None
+                return
+            if dmg_summary[constants.EFFECT_TYPE] is constants.DESTROY:
+                self._destroy_card(self.def_card)
                 self.def_card = None
                 return
         if dmg_summary[constants.TARGET] is constants.CARD_LOWEST_HP:
