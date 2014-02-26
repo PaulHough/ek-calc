@@ -155,11 +155,11 @@ class BloodWarrior(Card):
         }]
 
     def __str__(self):
-        return 'Headless Horseman - Level: {}  HP: {}  ATK: {}'.\
+        return 'Blood Warrior - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
     def __repr__(self):
-        return 'Headless Horseman - Level: {}  HP: {}  ATK: {}'.\
+        return 'Blood Warrior - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
 
@@ -209,11 +209,11 @@ class BronzeDragon(Card):
         return dmg_summary
 
     def __str__(self):
-        return 'Headless Horseman - Level: {}  HP: {}  ATK: {}'.\
+        return 'Bronze Dragon - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
     def __repr__(self):
-        return 'Headless Horseman - Level: {}  HP: {}  ATK: {}'.\
+        return 'Bronze Dragon - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
 
@@ -397,11 +397,13 @@ class SpitfireWorm(Card):
     def enter_effect(self):
         if self.lvl == 10:
             return self._handle_lvl_10_ability()
+        return list()
 
     def exit_effect(self):
         super(SpitfireWorm, self).exit_effect()
         if self.lvl == 10:
             return self._handle_lvl_10_ability(-1)
+        return list()
 
     def _handle_lvl_5_ability(self):
         self.receive_heal(abilities.Rejuvenation(4).get_effect())

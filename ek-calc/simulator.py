@@ -373,12 +373,6 @@ class Fight():
         if self.player_turn:
             for rune in self.player.runes:
                 if self._rune_should_trigger(rune):
-                    print('{} Triggered'.format(rune))
-                    print('\tTimes Triggered: {}'.format(rune.times_triggered))
-                    print('\tConditions Needed: {}'.format(rune.get_triggering_conditions()))
-                    print('\t\tConditions (Cemetery): {}'.format(self.player_cemetery))
-                    print('\t\tConditions (Turns): {}'.format(self.turn))
-                    input()
                     rune_effects = rune.get_effect()
                     for effect in rune_effects:
                         self._handle_rune_effect(effect)

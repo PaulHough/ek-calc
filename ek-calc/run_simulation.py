@@ -10,8 +10,8 @@ import demons
 from my_cards import player_deck, player_runes
 
 DEBUG = False
-PLAYER_LVL = 50
-DEMON_CARD = demons.SeaKing()
+PLAYER_LVL = 33
+DEMON_CARD = demons.SeaKing
 
 
 def get_possible_decks():
@@ -45,19 +45,19 @@ def handle_reports(reports):
     print('Rune Order: ')
     for i, rune in enumerate(best_report['runes']):
         print('\t{}. {}'.format(i + 1, rune))
-    print('Max Damage Per Minute: {:.0f}'.format(best_report['dpm']))
+    print('\nMax Damage Per Minute: {:.0f}'.format(best_report['dpm']))
     print('Average Damage Done: {:.0f}'.format(best_report['avg_dmg']))
-    print('Average Rounds Lasted: {:.0f}\n'.format(best_report['avg_rounds']))
+    print('Average Rounds Lasted: {:.0f}'.format(best_report['avg_rounds']))
 
 
 def create_new_players(deck, runes):
     player = Player(PLAYER_LVL)
     for card, lvl in deck:
         player.assign_card(card(lvl))
-    for rune, lvl in runes:
-        player.assign_rune(rune(lvl))
+    # for rune, lvl in runes:
+    #     player.assign_rune(rune(lvl))
     demon_player = demons.DemonPlayer()
-    demon_player.assign_card(DEMON_CARD)
+    demon_player.assign_card(DEMON_CARD())
     return player, demon_player
 
 
@@ -67,6 +67,7 @@ def handle_simulations(cnt=1):
     reports = list()
     print('Calculated {} possible deck and rune combinations'.format(
         len(decks) * len(runes_set)))
+    print('Running {} simulations.'.format(len(decks) * len(runes_set) * cnt))
     for runes in runes_set:
         print('Simulating for runes:')
         for rune in runes:
@@ -123,4 +124,4 @@ if __name__ == '__main__':
         else:
             count = 1
         handle_simulations(count)
-    print('Simulation took: {}'.format(datetime.now() - start))
+    print('Simulation took: {}\n'.format(datetime.now() - start))
