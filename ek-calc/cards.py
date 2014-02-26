@@ -236,10 +236,10 @@ class HeadlessHorseman(Card):
 
     def _get_reflect_summary(self, dmg_summary):
         if dmg_summary[constants.EFFECT_TYPE] is constants.ATK:
-            dodge_chance = abilities.Dodge(3).get_effect()
-            self.hp -= dodge_chance * dmg_summary.get(constants.DAMAGE, 0)
-        else:
-            self.hp -= dmg_summary.get(constants.DAMAGE, 0)
+            dodge = abilities.Dodge(3).get_effect()
+            if dodge:
+                return list()
+        self.hp -= dmg_summary.get(constants.DAMAGE, 0)
         return list()
 
     def _handle_lvl_5_ability(self):

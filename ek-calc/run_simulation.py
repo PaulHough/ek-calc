@@ -79,7 +79,9 @@ def handle_simulations(cnt=1):
         for deck in decks:
             dmg_done = 0
             dmg_per_min = 0
+            i = 1
             for _ in itertools.repeat(None, cnt):
+                print('Running Simulation {} of {}'.format(i, cnt))
                 player, demon_player = create_new_players(deck, runes)
                 fight = Fight(player, demon_player)
                 dmg_done += fight.dmg_done

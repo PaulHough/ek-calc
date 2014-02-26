@@ -287,7 +287,7 @@ class Fight():
             for dmg in dmg_summary:
                 if dmg[constants.EFFECT_TYPE] not in \
                         constants.CAN_DAMAGE_PLAYER:
-                    return
+                    continue
                 if dmg[constants.EFFECT_TYPE] is constants.ATK_COND:
                     dmg[constants.DAMAGE] = dmg[constants.DAMAGE][0]
                 if dmg[constants.TARGET] in \
