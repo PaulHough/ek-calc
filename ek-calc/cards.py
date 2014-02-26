@@ -248,11 +248,11 @@ class DemonicImp(Card):
         dmg = self.atk
         if self.lvl >= 5:
             dmg += self.atk * abilities.Concentration(5).get_effect()
-        dmg_summary = {
+        dmg_summary = [{
             constants.EFFECT_TYPE: constants.ATK,
             constants.DAMAGE: dmg,
             constants.TARGET: constants.CARD_ACROSS
-        }
+        }]
         if self.prevention:
             return list()
         return dmg_summary

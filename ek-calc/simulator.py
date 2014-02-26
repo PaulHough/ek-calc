@@ -248,6 +248,19 @@ class Fight():
         card.handle_abilities_defense(dmg_summary)
         self.card.receive_heal(starting_hp - card.hp)
 
+    def _resolve_damage_to_card_across(self, dmg_summary, def_hero):
+        if self.def_card is None or self.def_card.is_dead():
+            self._direct_damage(dmg_summary, def_hero)
+            return
+        if dmg_summary[constants.EFFECT_TYPE] is constants.EXILE:
+            self._exile_card(self.def_card)
+            self.def_card = None
+            return
+        if dmg_summary[constants.EFFECT_TYPE] is constants.DESTROY:
+            self._destroy_card(self.def_card)
+            self.def_card = None
+            return
+
     def _resolve_damage_through_cards(self, dmg_summary, def_hero):
         if dmg_summary[constants.EFFECT_TYPE] is constants.HEAL:
             self._handle_heal(dmg_summary)
@@ -265,17 +278,8 @@ class Fight():
             self._direct_damage(dmg_summary, def_hero)
             return
         if dmg_summary[constants.TARGET] is constants.CARD_ACROSS:
-            if self.def_card is None or self.def_card.is_dead():
-                self._direct_damage(dmg_summary, def_hero)
-                return
-            if dmg_summary[constants.EFFECT_TYPE] is constants.EXILE:
-                self._exile_card(self.def_card)
-                self.def_card = None
-                return
-            if dmg_summary[constants.EFFECT_TYPE] is constants.DESTROY:
-                self._destroy_card(self.def_card)
-                self.def_card = None
-                return
+            self._resolve_damage_to_card_across(dmg_summary, def_hero)
+            return
         if dmg_summary[constants.TARGET] is constants.CARD_LOWEST_HP:
             self._handle_lowest_hp_for_dmg(dmg_summary)
             return

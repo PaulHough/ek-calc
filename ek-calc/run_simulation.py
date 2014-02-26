@@ -11,7 +11,7 @@ from my_cards import player_deck, player_runes
 
 DEBUG = False
 PLAYER_LVL = 100
-DEMON_CARD = demons.Mars
+DEMON_CARD = demons.DarkTitan
 
 
 def get_possible_decks():
@@ -65,7 +65,8 @@ def handle_simulations(cnt=1):
     reports = list()
     print('Calculated {} possible deck and rune combinations'.format(
         len(decks) * len(runes_set)))
-    print('Running {} simulations.'.format(len(decks) * len(runes_set) * cnt))
+    num_of_sims = len(decks) * len(runes_set) * cnt
+    print('Running {} simulations.'.format(num_of_sims))
     for runes in runes_set:
         print('Simulating for runes:')
         for rune in runes:
