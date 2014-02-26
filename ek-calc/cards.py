@@ -16,12 +16,7 @@ class Card():
         self.prevention = False
         self.lacerate = False
         self.first_attack = True
-        self.base_atk = 0
-        self.hp_inc = 0
-        self.base_hp = 0
-        self.atk_inc = 0
         self.effects = list()
-
 
     def get_base_hp(self):
         return self.base_hp + self.hp_inc * self.lvl
@@ -30,6 +25,7 @@ class Card():
         return list()
 
     def exit_effect(self):
+        self.__init__(self.lvl)
         return list()
 
     def _get_atk(self):
@@ -118,7 +114,7 @@ class BloodWarrior(Card):
         self.hp_inc = 45
         self.base_atk = 250
         self.atk_inc = 24
-        super(BloodWarrior, self).__init__(lvl)
+        super(BloodWarrior, self).__init__(lvl=lvl)
 
     def _get_reflect_summary(self, dmg_summary):
         if self.lvl >= 5 and \
@@ -178,7 +174,7 @@ class BronzeDragon(Card):
         self.hp_inc = 48
         self.base_atk = 200
         self.atk_inc = 20
-        super(BronzeDragon, self).__init__(lvl)
+        super(BronzeDragon, self).__init__(lvl=lvl)
 
     def _get_reflect_summary(self, dmg_summary):
         if self.lvl == 10 and \
@@ -232,7 +228,7 @@ class HeadlessHorseman(Card):
         self.hp_inc = 8
         self.base_atk = 165
         self.atk_inc = 29
-        super(HeadlessHorseman, self).__init__(lvl)
+        super(HeadlessHorseman, self).__init__(lvl=lvl)
 
     def _get_reflect_summary(self, dmg_summary):
         if dmg_summary[constants.EFFECT_TYPE] is constants.ATK:
@@ -285,7 +281,7 @@ class Necromancer(Card):
         self.hp_inc = 25
         self.base_atk = 220
         self.atk_inc = 24
-        super(Necromancer, self).__init__(lvl)
+        super(Necromancer, self).__init__(lvl=lvl)
 
     def _get_reflect_summary(self, dmg_summary):
         if self.lvl >= 5 and \
@@ -339,7 +335,7 @@ class SkeletonKing(Card):
         self.hp_inc = 40
         self.base_atk = 225
         self.atk_inc = 40
-        super(SkeletonKing, self).__init__(lvl)
+        super(SkeletonKing, self).__init__(lvl=lvl)
 
     def _get_reflect_summary(self, dmg_summary):
         self.hp -= dmg_summary.get(constants.DAMAGE, 0)
@@ -396,13 +392,14 @@ class SpitfireWorm(Card):
         self.hp_inc = 17
         self.base_atk = 135
         self.atk_inc = 26
-        super(SpitfireWorm, self).__init__(lvl)
+        super(SpitfireWorm, self).__init__(lvl=lvl)
 
     def enter_effect(self):
         if self.lvl == 10:
             return self._handle_lvl_10_ability()
 
     def exit_effect(self):
+        super(SpitfireWorm, self).exit_effect()
         if self.lvl == 10:
             return self._handle_lvl_10_ability(-1)
 
@@ -455,7 +452,7 @@ class Troglodyte(Card):
         self.hp_inc = 28
         self.base_atk = 180
         self.atk_inc = 23
-        super(Troglodyte, self).__init__(lvl)
+        super(Troglodyte, self).__init__(lvl=lvl)
 
     def _handle_lvl_5_ability(self):
         swamp_purity = abilities.SwampPurity(6)
@@ -518,7 +515,7 @@ class WoodElfArcher(Card):
         self.hp_inc = 20
         self.base_atk = 105
         self.atk_inc = 24
-        super(WoodElfArcher, self).__init__(lvl)
+        super(WoodElfArcher, self).__init__(lvl=lvl)
 
     def _handle_lvl_5_ability(self):
         swamp_purity = abilities.SwampPurity(5)

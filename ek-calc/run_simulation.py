@@ -11,7 +11,7 @@ from my_cards import player_deck, player_runes
 
 DEBUG = False
 PLAYER_LVL = 50
-DEMON_CARD = demons.DarkTitan()
+DEMON_CARD = demons.SeaKing()
 
 
 def get_possible_decks():
@@ -39,7 +39,7 @@ def handle_reports(reports):
         if report['dpm'] > max_dpm:
             max_dpm = report['dpm']
             best_report = deepcopy(report)
-    print('Best Deck: ')
+    print('\nBest Deck for {}: '.format(DEMON_CARD))
     for i, card in enumerate(best_report['deck']):
         print('\t{}. {}'.format(i + 1, card))
     print('Rune Order: ')
@@ -47,7 +47,7 @@ def handle_reports(reports):
         print('\t{}. {}'.format(i + 1, rune))
     print('Max Damage Per Minute: {:.0f}'.format(best_report['dpm']))
     print('Average Damage Done: {:.0f}'.format(best_report['avg_dmg']))
-    print('Average Rounds Lasted: {:.0f}'.format(best_report['avg_rounds']))
+    print('Average Rounds Lasted: {:.0f}\n'.format(best_report['avg_rounds']))
 
 
 def create_new_players(deck, runes):
