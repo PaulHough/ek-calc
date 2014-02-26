@@ -3,16 +3,15 @@ import constants
 
 
 class Rune():
-    element = None
-    stars = 0
-    max_times = 0
-    times_triggered = 0
-    name = None
-
     def __init__(self, lvl):
         if lvl < 0 or lvl > 4:
             raise ValueError('Runes must have a level 0 to 4.')
         self.lvl = lvl
+        self.element = None
+        self.stars = 0
+        self.max_times = 0
+        self.times_triggered = 0
+        self.name = None
 
     def get_effect(self):
         raise NotImplementedError('Each rune must have an effect.')
@@ -22,10 +21,12 @@ class Rune():
 
 
 class Leaf(Rune):
-    element = constants.AIR
-    stars = 2
-    max_times = 4
-    name = constants.REVIVAL
+    def __init__(self, lvl):
+        super(Leaf, self).__init__(lvl=lvl)
+        self.element = constants.AIR
+        self.stars = 2
+        self.max_times = 4
+        self.name = constants.LEAF
 
     def get_triggering_conditions(self):
         return [{
@@ -49,10 +50,12 @@ class Leaf(Rune):
 
 
 class Revival(Rune):
-    element = constants.AIR
-    stars = 3
-    max_times = 4
-    name = constants.REVIVAL
+    def __init__(self, lvl):
+        super(Revival, self).__init__(lvl=lvl)
+        self.element = constants.AIR
+        self.stars = 3
+        self.max_times = 4
+        self.name = constants.REVIVAL
 
     def get_triggering_conditions(self):
         return [{
