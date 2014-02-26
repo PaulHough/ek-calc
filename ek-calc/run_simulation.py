@@ -7,10 +7,9 @@ from datetime import datetime
 from player import Player
 from simulator import Fight
 import demons
-from my_cards import player_deck, player_runes
+from my_cards import player_deck, player_runes, PLAYER_LVL
 
 DEBUG = False
-PLAYER_LVL = 34
 DEMON_CARD = demons.SeaKing
 
 
