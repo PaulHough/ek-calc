@@ -10,7 +10,7 @@ import demons
 from my_cards import player_deck, player_runes
 
 DEBUG = False
-PLAYER_LVL = 33
+PLAYER_LVL = 50
 DEMON_CARD = demons.SeaKing
 
 

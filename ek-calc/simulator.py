@@ -126,12 +126,12 @@ class Fight():
         if card is None:
             if self.player_turn:
                 try:
-                    card = self._get_lowest_hp(self.player_in_play[0])
+                    card = self._get_lowest_hp(self.opp_in_play[0])
                 except IndexError:
                     return
             else:
                 try:
-                    card = self._get_lowest_hp(self.opp_in_play[0])
+                    card = self._get_lowest_hp(self.player_in_play[0])
                 except IndexError:
                     return
         low_hp_card = self._get_lowest_hp(card)
