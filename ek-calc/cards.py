@@ -217,6 +217,53 @@ class BronzeDragon(Card):
             format(self.lvl, self.hp, self.atk)
 
 
+class FireKirin(Card):
+    def __init__(self, lvl=0):
+        self.card_type = constants.FOREST
+        self.stars = 5
+        self.wait = 4
+        self.starting_wait = 4
+        self.cost = 14
+        self.base_hp = 1300
+        self.hp_inc = 26
+        self.base_atk = 340
+        self.atk_inc = 28
+        super(FireKirin, self).__init__(lvl=lvl)
+
+    def _handle_lvl_5_ability(self):
+        self.receive_heal(abilities.Rejuvenation(7).get_effect())
+
+    def _handle_lvl_10_ability(self):
+        if abilities.Resurrection(7).get_effect():
+            self.should_res = True
+
+    def _get_damage_summary(self):
+        if self.lvl >= 5:
+            self._handle_lvl_5_ability()
+        fire_storm = abilities.FireStorm(8)
+        dmg_summary = [{
+            constants.EFFECT_TYPE: fire_storm.effect_type,
+            constants.HEAL: fire_storm.get_effect(),
+            constants.TARGET: fire_storm.target
+        }]
+        for_dmg = {
+            constants.EFFECT_TYPE: constants.ATK,
+            constants.DAMAGE: self.atk,
+            constants.TARGET: constants.CARD_ACROSS,
+        }
+        if not self.prevention:
+            dmg_summary.append(for_dmg)
+        return dmg_summary
+
+    def __str__(self):
+        return 'Fire Kirin - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
+
+    def __repr__(self):
+        return 'Fire Kirin - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
+
+
 class HeadlessHorseman(Card):
     def __init__(self, lvl=0):
         self.card_type = constants.MOUNTAIN

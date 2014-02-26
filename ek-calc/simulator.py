@@ -121,7 +121,7 @@ class Fight():
             self.player_in_play.remove(card)
             self._handle_exiting_effects(card)
 
-    def _handle_lowest_hp(self, dmg_summary):
+    def _handle_lowest_hp_for_dmg(self, dmg_summary):
         card = self.def_card
         if card is None:
             if self.player_turn:
@@ -135,10 +135,23 @@ class Fight():
                 except IndexError:
                     return
         low_hp_card = self._get_lowest_hp(card)
-        if constants.HEAL in dmg_summary:
-            low_hp_card.receive_heal(dmg_summary[constants.HEAL])
-        else:
-            low_hp_card.hp -= dmg_summary[constants.DAMAGE]
+        low_hp_card.hp -= dmg_summary[constants.DAMAGE]
+
+    def _handle_lowest_hp_for_heals(self, dmg_summary):
+        card = self.def_card
+        if card is None:
+            if self.player_turn:
+                try:
+                    card = self._get_lowest_hp(self.player_in_play[0])
+                except IndexError:
+                    return
+            else:
+                try:
+                    card = self._get_lowest_hp(self.opp_in_play[0])
+                except IndexError:
+                    return
+        low_hp_card = self._get_lowest_hp(card)
+        low_hp_card.receive_heal(dmg_summary[constants.HEAL])
 
     def _handle_conditionals(self, dmg_summary, def_hero):
         if dmg_summary[constants.TARGET] is constants.CARD_ACROSS:
@@ -164,7 +177,7 @@ class Fight():
 
     def _handle_heal(self, dmg_summary):
         if dmg_summary[constants.TARGET] is constants.CARD_LOWEST_HP_ALLY:
-            self._handle_lowest_hp(dmg_summary)
+            self._handle_lowest_hp_for_heals(dmg_summary)
 
     def _handle_random_damage(self, dmg_summary):
         num_of_targets = dmg_summary.get(constants.NUM_OF_TARGETS, 0)
@@ -248,7 +261,7 @@ class Fight():
                 self.def_card = None
                 return
         if dmg_summary[constants.TARGET] is constants.CARD_LOWEST_HP:
-            self._handle_lowest_hp(dmg_summary)
+            self._handle_lowest_hp_for_dmg(dmg_summary)
             return
         if dmg_summary[constants.TARGET] is constants.ENEMY_RANDOM:
             self._handle_random_damage(dmg_summary)
@@ -337,7 +350,7 @@ class Fight():
             self._handle_all_allies(summary)
             return
         if summary[constants.TARGET] is constants.CARD_LOWEST_HP:
-            self._handle_lowest_hp(summary)
+            self._handle_lowest_hp_for_dmg(summary)
             return
 
     def _check_card_in_cemetary(self, condition):

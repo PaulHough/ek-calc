@@ -10,8 +10,8 @@ import demons
 from my_cards import player_deck, player_runes
 
 DEBUG = False
-PLAYER_LVL = 50
-DEMON_CARD = demons.SeaKing
+PLAYER_LVL = 100
+DEMON_CARD = demons.Pandarus
 
 
 def get_possible_decks():

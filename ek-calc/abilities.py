@@ -140,6 +140,16 @@ class FireGod(Ability):
         return 20 * self.rank
 
 
+class FireStorm(Ability):
+    target = constants.ALL_ENEMY_CARDS
+    effect_type = constants.SPELL
+
+    def get_effect(self):
+        low = 25 * self.rank
+        high = 50 * self.rank
+        return random.uniform(low, high)
+
+
 class ForestForce(Ability):
     target = constants.OTHER_FOREST_ALLIES
 
