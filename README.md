@@ -53,10 +53,13 @@ Usage
 
 Currently the usage of the simulator requires some manual entries in the ``my_cards.py`` file.  Once the project matures the API will be built out to allow for a more elegant interface.
 
-Within ``my_cards.py`` you can list cards that will be assigned to a player for the simulation as well as the player level you want used.  Simply list the card as a tuple with the card object and the level of the card.  Then execute the ``run_simulation.py`` script with an argument for the number of simulations per deck you want to run.
+Within ``my_cards.py`` you can list cards that will be assigned to a player, the player level you want used, the demon card you want to fight against and which runes to use.  Simply list the card as a tuple with the card object and the level of the card.  Then execute the ``run_simulation.py`` script with an argument for the number of simulations per deck you want to run.
 
-This example would create a level 25 player.  The simulator will take every deck combination possible with the following cards, and every rune permutation possible (rune order matters) with the runes listed below.:
+This example would create a level 25 player to fight against Sea King.  The simulator will take every deck combination possible with the following cards, and every rune permutation possible (rune order matters) with the runes listed below.:
 
+    PLAYER_LVL = 25
+    DEMON_CARD = demons.SeaKing
+    
     player_deck = (
         (cards.HeadlessHorseman, 10),
         (cards.HeadlessHorseman, 10),
