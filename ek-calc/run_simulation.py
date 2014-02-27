@@ -7,10 +7,7 @@ from datetime import datetime
 from player import Player
 from simulator import Fight
 import demons
-from my_cards import player_deck, player_runes, PLAYER_LVL
-
-DEBUG = False
-DEMON_CARD = demons.SeaKing
+from my_cards import player_deck, player_runes, PLAYER_LVL, DEMON_CARD
 
 
 def get_possible_decks():

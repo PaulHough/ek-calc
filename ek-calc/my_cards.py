@@ -1,7 +1,9 @@
 import cards
 import runes
+import demons
 
 PLAYER_LVL = 25
+DEMON_CARD = demons.SeaKing
 
 player_deck = (
     (cards.HeadlessHorseman, 10),
