@@ -78,7 +78,8 @@ class Card():
         pass
 
     def handle_abilities_defense(self, dmg_summary):
-        self._handle_stunning_effects(dmg_summary)
+        if not self.immune:
+            self._handle_stunning_effects(dmg_summary)
         return self._get_reflect_summary(dmg_summary)
 
     def _get_reflect_summary(self, dmg_summary):
@@ -115,6 +116,69 @@ class Card():
         return self.__str__()
 
 
+class Aranyani(Card):
+    def __init__(self, *args, **kwargs):
+        self.card_type = constants.FOREST
+        self.stars = 5
+        self.wait = 4
+        self.starting_wait = 4
+        self.cost = 14
+        self.base_hp = 1350
+        self.hp_inc = 36
+        self.base_atk = 400
+        self.atk_inc = 28
+        self.immune = False
+        super(Aranyani, self).__init__(*args, **kwargs)
+
+    def enter_effect(self):
+        if self.lvl == 10:
+            return self._handle_lvl_10_ability()
+        return list()
+
+    def _handle_lvl_5_ability(self):
+        healing = abilities.Healing(10)
+        return [{
+            constants.EFFECT_TYPE: healing.effect_type,
+            constants.HEAL: healing.get_effect(),
+            constants.TARGET: healing.target
+        }]
+
+    def _handle_lvl_10_ability(self, multiplier=1):
+        teleportation = abilities.Teleportation
+        return [{
+            constants.EFFECT_TYPE: teleportation.effect_type,
+            constants.TARGET: teleportation.target,
+        }]
+
+    def _get_reflect_summary(self, dmg_summary):
+        if dmg_summary[constants.EFFECT_TYPE] in \
+                constants.MAGIC_SHIELD_EFFECTS:
+            dmg = 80
+            if dmg_summary[constants.DAMAGE] < 80:
+                dmg = dmg_summary[constants.DAMAGE]
+            self.hp -= dmg
+        else:
+            self.hp -= dmg_summary.get(constants.DAMAGE)
+        return list()
+
+    def _get_damage_summary(self):
+        dmg_summary = list()
+        if self.lvl >= 5:
+            dmg_summary = self._handle_lvl_5_ability()
+        for_dmg = {
+            constants.EFFECT_TYPE: constants.ATK,
+            constants.DAMAGE: self.atk,
+            constants.TARGET: constants.CARD_ACROSS
+        }
+        if not self.prevention:
+            dmg_summary.append(for_dmg)
+        return dmg_summary
+
+    def __str__(self):
+        return 'Aranyani - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
+
+
 class BloodWarrior(Card):
     def __init__(self, *args, **kwargs):
         self.card_type = constants.SWAMP
@@ -130,7 +194,7 @@ class BloodWarrior(Card):
 
     def _get_reflect_summary(self, dmg_summary):
         if self.lvl >= 5 and \
-                dmg_summary[constants.EFFECT_TYPE] is constants.SPELL:
+                dmg_summary[constants.EFFECT_TYPE] in constants.SPELL:
             reflection = abilities.Reflection(4)
             return [{
                 constants.EFFECT_TYPE: reflection.effect_type,
@@ -195,7 +259,8 @@ class BronzeDragon(Card):
         dmg_summary = [{
             constants.EFFECT_TYPE: thunderbolt.effect_type,
             constants.DAMAGE: thunderbolt.get_effect(),
-            constants.TARGET: thunderbolt.target
+            constants.TARGET: thunderbolt.target,
+            constants.ATK_PREVENTION: thunderbolt.attack_prevention,
         }]
         for_dmg = {
             constants.EFFECT_TYPE: constants.ATK,
@@ -208,6 +273,70 @@ class BronzeDragon(Card):
 
     def __str__(self):
         return 'Bronze Dragon - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
+
+
+class CoiledDragon(Card):
+    def __init__(self, *args, **kwargs):
+        self.card_type = constants.TUNDRA
+        self.stars = 4
+        self.wait = 4
+        self.starting_wait = 4
+        self.cost = 12
+        self.base_hp = 880
+        self.hp_inc = 23
+        self.base_atk = 235
+        self.atk_inc = 28
+        self.immune = False
+        super(CoiledDragon, self).__init__(*args, **kwargs)
+
+    def enter_effect(self):
+        if self.lvl == 10:
+            return self._handle_lvl_10_ability()
+        return list()
+
+    def exit_effect(self):
+        super(CoiledDragon, self).exit_effect()
+        if self.lvl == 10:
+            return self._handle_lvl_10_ability(-1)
+        return list()
+
+    def _handle_lvl_10_ability(self, multiplier=1):
+        northern_force = abilities.NorthernForce(5)
+        return [{
+            constants.TARGET: northern_force.target,
+            constants.EFFECT: multiplier * northern_force.get_effect()
+        }]
+
+    def _get_reflect_summary(self, dmg_summary):
+        if self.hp > 0 and dmg_summary[constants.EFFECT_TYPE] not in \
+                constants.IMMUNITY_EFFECT_TYPES:
+            if self.lvl >= 5:
+                self.hp -= self._handle_lvl_5_ability(
+                    dmg_summary[constants.DAMAGE])
+        return list()
+
+    def _handle_lvl_5_ability(self, dmg):
+        parry = abilities.Parry(7)
+        dmg_done = dmg - parry.get_effect()
+        if dmg_done > 0:
+            return dmg_done
+        return 0
+
+    def _get_damage_summary(self):
+        dmg_summary = list()
+        concentration = abilities.Concentration(5)
+        for_dmg = {
+            constants.EFFECT_TYPE: constants.ATK,
+            constants.DAMAGE: self.atk * concentration.get_effect(),
+            constants.TARGET: constants.CARD_ACROSS
+        }
+        if not self.prevention:
+            dmg_summary.append(for_dmg)
+        return dmg_summary
+
+    def __str__(self):
+        return 'Coiled Dragon - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
 
@@ -260,6 +389,62 @@ class DemonicImp(Card):
 
     def __str__(self):
         return 'Demonic Imp - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
+
+
+class DireSnappingTurtle(Card):
+    def __init__(self, *args, **kwargs):
+        self.card_type = constants.MOUNTAIN
+        self.stars = 5
+        self.wait = 4
+        self.starting_wait = 4
+        self.cost = 15
+        self.base_hp = 1300
+        self.hp_inc = 40
+        self.base_atk = 365
+        self.atk_inc = 26
+        super(DireSnappingTurtle, self).__init__(*args, **kwargs)
+
+    def _handle_lvl_5_ability(self, *args, **kwargs):
+        seal = abilities.Seal()
+        return {
+            constants.EFFECT_TYPE: seal.effect_type,
+            constants.ATK_PREVENTION: seal.attack_prevention,
+            constants.TARGET: seal.target
+        }
+
+    def _handle_lvl_10_ability(self, *args, **kwargs):
+        bloodsucker = abilities.Bloodsucker(8)
+        clean_sweep = abilities.CleanSweep()
+        return [{
+            constants.EFFECT_TYPE: bloodsucker.effect_type,
+            constants.DAMAGE: self.atk,
+            constants.TARGET: bloodsucker.target,
+            constants.PERCENT_DAMAGE_DONE: bloodsucker.get_effect()
+        }, {
+            constants.EFFECT_TYPE: clean_sweep.effect_type,
+            constants.DAMAGE: self.atk,
+            constants.TARGET: clean_sweep.target
+        }]
+
+    def _get_damage_summary(self):
+        clean_sweep = abilities.CleanSweep()
+        dmg_summary = list()
+        if self.lvl >= 5:
+            dmg_summary.append(self._handle_lvl_5_ability())
+        if not self.prevention:
+            if self.lvl == 10:
+                dmg_summary.extend(self._handle_lvl_10_ability())
+            else:
+                dmg_summary.append({
+                    constants.EFFECT_TYPE: clean_sweep.effect_type,
+                    constants.DAMAGE: self.atk,
+                    constants.TARGET: clean_sweep.target
+                })
+        return dmg_summary
+
+    def __str__(self):
+        return 'Dire Snapping Turtle - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
 

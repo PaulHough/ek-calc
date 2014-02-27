@@ -56,22 +56,45 @@ class Fight():
         for effect in exit_summary:
             self._handle_effect(effect)
 
-    def _put_card_in_cemetery(self, card):
-        self.player_in_play.remove(card)
-        if card.should_res:
-            self.player.card_order.append(card)
+    def _put_card_in_cemetery_from_deck(self, card):
+        if card in self.player_on_deck:
+            self.player_on_deck.remove(card)
+            if card.should_res:
+                self.player.card_order.append(card)
+                return
+            self.player_cemetery.append(card)
+        else:
+            self.opp_on_deck.remove(card)
+            if card.should_res:
+                self.opp.card_order.append(card)
+                return
+            self.opp_cemetery.append(card)
+
+    def _put_card_in_cemetery_from_play(self, card):
+        if card in self.player_in_play:
+            self.player_in_play.remove(card)
+            if card.should_res:
+                self.player.card_order.append(card)
+                self._handle_exiting_effects(card)
+                return
+            self.player_cemetery.append(card)
             self._handle_exiting_effects(card)
-            return
-        self.player_cemetery.append(card)
-        self._handle_exiting_effects(card)
+        else:
+            self.opp_in_play.remove(card)
+            if card.should_res:
+                self.opp.card_order.append(card)
+                self._handle_exiting_effects(card)
+                return
+            self.opp_cemetery.append(card)
+            self._handle_exiting_effects(card)
 
     def _resolve_all_healths(self):
         for card in self.player_in_play:
             if card.is_dead():
-                self._put_card_in_cemetery(card)
+                self._put_card_in_cemetery_from_play(card)
         for card in self.opp_in_play:
             if card.is_dead():
-                self._put_card_in_cemetery(card)
+                self._put_card_in_cemetery_from_play(card)
 
     def _damage_adjacent_cards(self, dmg, cards):
         for card in cards:
@@ -120,13 +143,7 @@ class Fight():
         if card in self.player_in_play:
             if card.resists_destroy():
                 return
-            self._put_card_in_cemetery(card)
-
-    def _teleport_card(self, card):
-        if card in self.player_in_play:
-            if card.resists_teleportation():
-                return
-            self._put_card_in_cemetery(card)
+            self._put_card_in_cemetery_from_play(card)
 
     def _exile_card(self, card):
         if card in self.player_in_play:
@@ -209,7 +226,7 @@ class Fight():
             self.card.hp -= self._handle_reflect_summary(reflect_summary)
 
     def _handle_damage_to_all(self, dmg_summary):
-        if dmg_summary[constants.EFFECT_TYPE] is constants.PERSISTENT_EFFECTS:
+        if dmg_summary[constants.EFFECT_TYPE] in constants.PERSISTENT_EFFECTS:
             if self.player_turn:
                 for card in self.opp_in_play:
                     card.add_effect(dmg_summary)
@@ -251,6 +268,15 @@ class Fight():
         card.handle_abilities_defense(dmg_summary)
         self.card.receive_heal(starting_hp - card.hp)
 
+    def _handle_bloodsucker(self, dmg_summary):
+        starting_hp = self.def_card.hp
+        reflect_summary = self.def_card.handle_abilities_defense(dmg_summary)
+        self.card.hp -= self._handle_reflect_summary(reflect_summary)
+        heal_amount = (starting_hp - self.def_card.hp) *\
+            dmg_summary[constants.PERCENT_DAMAGE_DONE]
+        self.card.receive_heal(heal_amount)
+        self.def_card.hp += dmg_summary[constants.PERCENT_DAMAGE_DONE]
+
     def _resolve_damage_to_card_across(self, dmg_summary, def_hero):
         if self.def_card is None or self.def_card.is_dead():
             self._direct_damage(dmg_summary, def_hero)
@@ -271,6 +297,15 @@ class Fight():
                 and starting_hp - self.def_card.hp > 0:
             self.card.handle_bloodthirsty()
 
+    def _handle_damage_to_card_adjacent(self, dmg_summary):
+        cards = self._get_adj_cards(self.card)
+        reflect_summary = self.def_card.handle_abilities_defense(dmg_summary)
+        self.card.hp -= self._handle_reflect_summary(reflect_summary)
+        for card in cards:
+            if card == self.card:
+                continue
+            card.hp -= dmg_summary[constants.DAMAGE]
+
     def _resolve_damage_through_cards(self, dmg_summary, def_hero):
         if dmg_summary[constants.EFFECT_TYPE] is constants.HEAL:
             self._handle_heal(dmg_summary)
@@ -284,6 +319,9 @@ class Fight():
         if dmg_summary[constants.EFFECT_TYPE] is constants.BITE:
             self._handle_bite(dmg_summary)
             return
+        if dmg_summary[constants.EFFECT_TYPE] is constants.BLOODSUCKER:
+            self._handle_bloodsucker(dmg_summary)
+            return
         if dmg_summary[constants.TARGET] is constants.ENEMY_HERO:
             self._direct_damage(dmg_summary, def_hero)
             return
@@ -295,6 +333,9 @@ class Fight():
             return
         if dmg_summary[constants.TARGET] is constants.ALL_ENEMY_CARDS:
             self._handle_damage_to_all(dmg_summary)
+            return
+        if dmg_summary[constants.TARGET] is constants.CARD_ADJACENT:
+            self._handle_damage_to_card_adjacent(dmg_summary)
             return
         if dmg_summary[constants.EFFECT_TYPE] is constants.TRAP:
             self._handle_trap(dmg_summary)
@@ -423,12 +464,39 @@ class Fight():
         self._put_cards_in_play()
         self._put_cards_on_deck()
 
+    def _get_longest_wait_time(self, on_deck):
+        if len(on_deck) == 0:
+            return
+        long_card = on_deck[0]
+        for card in on_deck:
+            if card.wait > long_card.wait:
+                long_card = card
+        return long_card
+
+    def _handle_teleportation(self):
+        if self.player_turn:
+            card = self._get_longest_wait_time(self.opp_on_deck)
+        else:
+            card = self._get_longest_wait_time(self.player_on_deck)
+        if card is None:
+            return
+        if card.resists_teleportation():
+            return
+        self._put_card_in_cemetery_from_deck(card)
+
     def _handle_effect(self, effect):
         if effect.get(constants.TARGET) is constants.OTHER_FOREST_ALLIES:
             if self.player_turn:
                 for card in self.player_in_play:
                     if card.card_type == constants.FOREST:
                         card.atk += effect[constants.EFFECT]
+        if effect.get(constants.TARGET) is constants.OTHER_TUNDRA_ALLIES:
+            if self.player_turn:
+                for card in self.player_in_play:
+                    if card.card_type == constants.TUNDRA:
+                        card.atk += effect[constants.EFFECT]
+        if effect.get(constants.EFFECT_TYPE) is constants.TELEPORTATION:
+            self._handle_teleportation()
 
     def _handle_entering_effects(self, card):
         enter_summary = card.enter_effect()

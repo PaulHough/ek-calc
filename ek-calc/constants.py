@@ -9,6 +9,8 @@ ATK = 'atk'
 ATK_COND = 'atk_cond'
 ATK_PREVENTION = 'atk_prevention'
 BITE = 'bite'
+BLOOD = 'blood'
+BLOODSUCKER = 'bloodsucker'
 BLOODTHIRSTY = 'bloodthirsty'
 BURN = 'burn'
 CARD_ACROSS = 'card_across'
@@ -43,13 +45,16 @@ IMMUNE = 'immune'
 LACERATION = 'laceration'
 LEAF = 'leaf'
 LIGHTNING = 'lightning'
+LONGEST_WAIT_TIME = 'longest_wait_time'
 MOUNTAIN = 'mountain'
 NO_HEALS = 'no_heals'
 NUM_OF_TARGETS = 'num_of_targets'
 NUM_TO_ACTIVATE = 'num_to_activate'
 OTHER = 'other'
 OTHER_FOREST_ALLIES = 'other_forest_allies'
+OTHER_TUNDRA_ALLIES = 'other_tundra_allies'
 PHYSICAL = 'physical'
+PERCENT_DAMAGE_DONE = 'percent_damage_done'
 PLAGUE = 'plague'
 POISON = 'poison'
 REMAINING = 'remaining'
@@ -59,10 +64,10 @@ SACRIFICE = 'sacrifice'
 SEAL = 'seal'
 SELF = 'self'
 SMOG = 'smog'
-SPELL = 'spell'
 STUN = 'stun'
 SWAMP = 'swamp'
 TARGET = 'target'
+TELEPORTATION = 'teleportation'
 TRIGGERING_CONDITION = 'triggering_condition'
 TUNDRA = 'tundra'
 TURN = 'turn'
@@ -70,10 +75,11 @@ TRAP = 'trap'
 VENOM = 'venom'
 
 IMMUNITY_EFFECT_TYPES = (
-    SPELL, ICE, LIGHTNING, TRAP, SEAL, SACRIFICE, EXILE,
-    DESTROY, LACERATION
+    ICE, LIGHTNING, TRAP, SEAL, SACRIFICE, EXILE, DESTROY, LACERATION, FIRE
 )
+SPELL = (ICE, LIGHTNING, FIRE, BLOOD)
 DAMAGE_TO_HERO_EFFECT_TYPES = (ATK, ENEMY_HERO)
-PERSISTENT_EFFECTS = (BURN, SMOG, POISON, VENOM)
+PERSISTENT_EFFECTS = (BURN, SMOG, POISON, VENOM, SEAL)
 STUN_TYPES = (TRAP, STUN)
 CAN_DAMAGE_PLAYER = (ATK, ATK_COND)
+MAGIC_SHIELD_EFFECTS = (FIRE, ICE, LIGHTNING, BLOOD)

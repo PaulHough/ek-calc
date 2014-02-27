@@ -34,10 +34,17 @@ class Backstab(Ability):
 class Bite(Ability):
     ability_type = constants.BITE
     target = constants.ENEMY_RANDOM
-    effect_type = constants.SPELL
+    effect_type = constants.BLOOD
 
     def get_effect(self):
         return 20 * self.rank
+
+
+class Bloodsucker(Ability):
+    effect_type = constants.BLOODSUCKER
+
+    def get_effect(self):
+        return .1 * self.rank
 
 
 class Bloodthirsty(Ability):
@@ -49,10 +56,15 @@ class ChainLightning(Ability):
     target = constants.ENEMY_RANDOM
     num_of_targets = 3
     attack_prevention = .4
-    effect_type = constants.SPELL
+    effect_type = constants.LIGHTNING
 
     def get_effect(self):
         return 25 * self.rank
+
+
+class CleanSweep(Ability):
+    target = constants.CARD_ADJACENT
+    num_of_targets = 3
 
 
 class Concentration(Ability):
@@ -124,7 +136,7 @@ class Exile(Ability):
 
 class Fireball(Ability):
     target = constants.ENEMY_RANDOM
-    effect_type = constants.SPELL
+    effect_type = constants.FIRE
 
     def get_effect(self):
         low = 25 * self.rank
@@ -142,7 +154,7 @@ class FireGod(Ability):
 
 class FireStorm(Ability):
     target = constants.ALL_ENEMY_CARDS
-    effect_type = constants.SPELL
+    effect_type = constants.FIRE
 
     def get_effect(self):
         low = 25 * self.rank
@@ -191,6 +203,13 @@ class Laceration(Ability):
         pass
 
 
+class NorthernForce(Ability):
+    target = constants.OTHER_TUNDRA_ALLIES
+
+    def get_effect(self):
+        return 25 + self.rank
+
+
 class Parry(Ability):
     ability_type = constants.DAMAGE_MITIGATION
     target = constants.SELF
@@ -230,6 +249,12 @@ class Retaliation(Ability):
         return 20 * self.rank
 
 
+class Seal(Ability):
+    target = constants.ALL_ENEMY_CARDS
+    attack_prevention = 1
+    effect_type = constants.SEAL
+
+
 class Snipe(Ability):
     target = constants.CARD_LOWEST_HP
     effect_type = constants.PHYSICAL
@@ -246,10 +271,16 @@ class SwampPurity(Ability):
         return .15 * (self.rank + 1)
 
 
+class Teleportation(Ability):
+    ability_type = constants.CARD_MANIPULATION
+    effect_type = constants.TELEPORTATION
+    target = constants.LONGEST_WAIT_TIME
+
+
 class Thunderbolt(Ability):
     target = constants.ENEMY_RANDOM
     attack_prevention = .5
-    effect_type = constants.SPELL
+    effect_type = constants.LIGHTNING
 
     def get_effect(self):
         return 25 * self.rank
@@ -257,7 +288,7 @@ class Thunderbolt(Ability):
 
 class ToxicClouds(Ability):
     target = constants.ALL_ENEMY_CARDS
-    effect_type = constants.SPELL
+    effect_type = constants.POISON
 
     def get_effect(self):
         return 20 * self.rank

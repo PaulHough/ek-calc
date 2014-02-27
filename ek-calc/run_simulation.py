@@ -37,8 +37,9 @@ def handle_reports(reports):
     for i, card in enumerate(best_report['deck']):
         print('\t{}. {}'.format(i + 1, card))
     print('Rune Order: ')
-    for i, rune in enumerate(best_report['runes']):
-        print('\t{}. {}'.format(i + 1, rune))
+    if best_report['runes'] is not None:
+        for i, rune in enumerate(best_report['runes']):
+            print('\t{}. {}'.format(i + 1, rune))
     print('\nMax Damage Per Minute: {:.0f}'.format(best_report['dpm']))
     print('Average Damage Done: {:.0f}'.format(best_report['avg_dmg']))
     print('Average Rounds Lasted: {:.0f}'.format(best_report['avg_rounds']))
@@ -49,46 +50,57 @@ def create_new_players(deck, runes):
     for val in deck:
         merit = False
         if len(val) == 3:
-            merit = True
+            merit = val[2]
         card = val[0]
         lvl = val[1]
         player.assign_card(card(lvl, merit))
-    for rune, lvl in runes:
-        player.assign_rune(rune(lvl))
     demon_player = demons.DemonPlayer()
     demon_player.assign_card(DEMON_CARD())
+
+    if runes is None:
+        return player, demon_player
+    for rune, lvl in runes:
+        player.assign_rune(rune(lvl))
     return player, demon_player
+
+
+def run_simulation_with_decks(decks, reports, cnt, runes=None):
+    for deck in decks:
+        dmg_done = 0
+        dmg_per_min = 0
+        rounds_lasted = 0
+        for _ in itertools.repeat(None, cnt):
+            player, demon_player = create_new_players(deck, runes)
+            fight = Fight(player, demon_player)
+            dmg_done += fight.dmg_done
+            dmg_per_min += fight.dmg_per_min
+            rounds_lasted += fight.turn
+        reports.append({
+            'dpm': dmg_per_min / cnt,
+            'avg_dmg': dmg_done/cnt,
+            'avg_rounds': rounds_lasted/cnt,
+            'deck': deck,
+            'runes': runes
+        })
 
 
 def handle_simulations(cnt=1):
     decks = get_possible_decks()
     runes_set = get_possible_runes()
     reports = list()
+    combinations = len(decks) * len(runes_set)
+    if len(runes_set) == 0:
+        combinations = len(decks)
     print('Calculated {} possible deck and rune combinations'.format(
-        len(decks) * len(runes_set)))
-    num_of_sims = len(decks) * len(runes_set) * cnt
-    print('Running {} simulations.'.format(num_of_sims))
+        combinations))
+    print('Running {} simulations.'.format(combinations * cnt))
+    if len(runes_set) == 0:
+        run_simulation_with_decks(decks, reports, cnt)
     for runes in runes_set:
         print('Simulating for runes:')
         for rune in runes:
             print('\t{}'.format(rune))
-        for deck in decks:
-            dmg_done = 0
-            dmg_per_min = 0
-            rounds_lasted = 0
-            for _ in itertools.repeat(None, cnt):
-                player, demon_player = create_new_players(deck, runes)
-                fight = Fight(player, demon_player)
-                dmg_done += fight.dmg_done
-                dmg_per_min += fight.dmg_per_min
-                rounds_lasted += fight.turn
-            reports.append({
-                'dpm': dmg_per_min / cnt,
-                'avg_dmg': dmg_done/cnt,
-                'avg_rounds': rounds_lasted/cnt,
-                'deck': deck,
-                'runes': runes
-            })
+        run_simulation_with_decks(decks, reports, cnt, runes)
     handle_reports(reports)
 
 
