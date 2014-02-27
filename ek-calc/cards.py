@@ -5,7 +5,7 @@ import constants
 
 
 class Card():
-    def __init__(self, lvl=0):
+    def __init__(self, lvl=0, merit=False):
         if lvl > 10 or lvl < 0:
             raise ValueError('Cards must have a level 0 to 10.')
         self.lvl = lvl
@@ -17,6 +17,7 @@ class Card():
         self.lacerate = False
         self.first_attack = True
         self.immune = False
+        self.merit = merit
         self.effects = list()
 
     def get_base_hp(self):
@@ -115,7 +116,7 @@ class Card():
 
 
 class BloodWarrior(Card):
-    def __init__(self, lvl=0):
+    def __init__(self, *args, **kwargs):
         self.card_type = constants.SWAMP
         self.stars = 4
         self.wait = 4
@@ -125,7 +126,7 @@ class BloodWarrior(Card):
         self.hp_inc = 45
         self.base_atk = 250
         self.atk_inc = 24
-        super(BloodWarrior, self).__init__(lvl=lvl)
+        super(BloodWarrior, self).__init__(*args, **kwargs)
 
     def _get_reflect_summary(self, dmg_summary):
         if self.lvl >= 5 and \
@@ -165,7 +166,7 @@ class BloodWarrior(Card):
 
 
 class BronzeDragon(Card):
-    def __init__(self, lvl=0):
+    def __init__(self, *args, **kwargs):
         self.card_type = constants.FOREST
         self.stars = 4
         self.wait = 4
@@ -175,7 +176,7 @@ class BronzeDragon(Card):
         self.hp_inc = 48
         self.base_atk = 200
         self.atk_inc = 20
-        super(BronzeDragon, self).__init__(lvl=lvl)
+        super(BronzeDragon, self).__init__(*args, **kwargs)
 
     def _get_reflect_summary(self, dmg_summary):
         if self.lvl == 10 and \
@@ -211,7 +212,7 @@ class BronzeDragon(Card):
 
 
 class DemonicImp(Card):
-    def __init__(self, lvl=0):
+    def __init__(self, *args, **kwargs):
         self.card_type = constants.MOUNTAIN
         self.stars = 4
         self.wait = 4
@@ -221,7 +222,7 @@ class DemonicImp(Card):
         self.hp_inc = 15
         self.base_atk = 250
         self.atk_inc = 26
-        super(DemonicImp, self).__init__(lvl=lvl)
+        super(DemonicImp, self).__init__(*args, **kwargs)
 
     def _get_reflect_summary(self, dmg_summary):
         if self.lvl >= 5 and \
@@ -263,7 +264,7 @@ class DemonicImp(Card):
 
 
 class FireKirin(Card):
-    def __init__(self, lvl=0):
+    def __init__(self, *args, **kwargs):
         self.card_type = constants.FOREST
         self.stars = 5
         self.wait = 4
@@ -273,7 +274,7 @@ class FireKirin(Card):
         self.hp_inc = 26
         self.base_atk = 340
         self.atk_inc = 28
-        super(FireKirin, self).__init__(lvl=lvl)
+        super(FireKirin, self).__init__(*args, **kwargs)
 
     def _handle_lvl_5_ability(self):
         self.receive_heal(abilities.Rejuvenation(7).get_effect())
@@ -305,7 +306,7 @@ class FireKirin(Card):
 
 
 class FireDemon(Card):
-    def __init__(self, lvl=0):
+    def __init__(self, *args, **kwargs):
         self.card_type = constants.MOUNTAIN
         self.stars = 5
         self.wait = 6
@@ -316,7 +317,7 @@ class FireDemon(Card):
         self.base_atk = 350
         self.atk_inc = 32
         self.immune = True
-        super(FireDemon, self).__init__(lvl=lvl)
+        super(FireDemon, self).__init__(*args, **kwargs)
 
     def _get_reflect_summary(self, dmg_summary):
         if self.hp > 0 and dmg_summary[constants.EFFECT_TYPE] not in \
@@ -355,7 +356,7 @@ class FireDemon(Card):
 
 
 class HeadlessHorseman(Card):
-    def __init__(self, lvl=0):
+    def __init__(self, *args, **kwargs):
         self.card_type = constants.MOUNTAIN
         self.stars = 3
         self.wait = 2
@@ -365,7 +366,7 @@ class HeadlessHorseman(Card):
         self.hp_inc = 8
         self.base_atk = 165
         self.atk_inc = 29
-        super(HeadlessHorseman, self).__init__(lvl=lvl)
+        super(HeadlessHorseman, self).__init__(*args, **kwargs)
 
     def _get_reflect_summary(self, dmg_summary):
         if dmg_summary[constants.EFFECT_TYPE] is constants.ATK:
@@ -398,7 +399,7 @@ class HeadlessHorseman(Card):
 
 
 class MossDragon(Card):
-    def __init__(self, lvl=0):
+    def __init__(self, *args, **kwargs):
         self.card_type = constants.FOREST
         self.stars = 5
         self.wait = 6
@@ -409,7 +410,7 @@ class MossDragon(Card):
         self.base_atk = 355
         self.atk_inc = 30
         self.immune = True
-        super(MossDragon, self).__init__(lvl=lvl)
+        super(MossDragon, self).__init__(*args, **kwargs)
 
     def _get_reflect_summary(self, dmg_summary):
         if self.hp > 0 and dmg_summary[constants.EFFECT_TYPE] not in \
@@ -444,7 +445,7 @@ class MossDragon(Card):
 
 
 class Necromancer(Card):
-    def __init__(self, lvl=0):
+    def __init__(self, *args, **kwargs):
         self.card_type = constants.MOUNTAIN
         self.stars = 4
         self.wait = 4
@@ -454,7 +455,7 @@ class Necromancer(Card):
         self.hp_inc = 25
         self.base_atk = 220
         self.atk_inc = 24
-        super(Necromancer, self).__init__(lvl=lvl)
+        super(Necromancer, self).__init__(*args, **kwargs)
 
     def _get_reflect_summary(self, dmg_summary):
         if self.lvl >= 5 and \
@@ -490,7 +491,7 @@ class Necromancer(Card):
 
 
 class SkeletonKing(Card):
-    def __init__(self, lvl=0):
+    def __init__(self, *args, **kwargs):
         self.card_type = constants.MOUNTAIN
         self.stars = 5
         self.wait = 2
@@ -500,7 +501,7 @@ class SkeletonKing(Card):
         self.hp_inc = 40
         self.base_atk = 225
         self.atk_inc = 40
-        super(SkeletonKing, self).__init__(lvl=lvl)
+        super(SkeletonKing, self).__init__(*args, **kwargs)
 
     def _get_reflect_summary(self, dmg_summary):
         self.hp -= dmg_summary.get(constants.DAMAGE, 0)
@@ -542,7 +543,7 @@ class SkeletonKing(Card):
 
 
 class SpitfireWorm(Card):
-    def __init__(self, lvl=0):
+    def __init__(self, *args, **kwargs):
         self.card_type = constants.FOREST
         self.stars = 3
         self.wait = 4
@@ -552,7 +553,7 @@ class SpitfireWorm(Card):
         self.hp_inc = 17
         self.base_atk = 135
         self.atk_inc = 26
-        super(SpitfireWorm, self).__init__(lvl=lvl)
+        super(SpitfireWorm, self).__init__(*args, **kwargs)
 
     def enter_effect(self):
         if self.lvl == 10:
@@ -600,7 +601,7 @@ class SpitfireWorm(Card):
 
 
 class Troglodyte(Card):
-    def __init__(self, lvl=0):
+    def __init__(self, *args, **kwargs):
         self.card_type = constants.FOREST
         self.stars = 3
         self.wait = 4
@@ -610,7 +611,7 @@ class Troglodyte(Card):
         self.hp_inc = 28
         self.base_atk = 180
         self.atk_inc = 23
-        super(Troglodyte, self).__init__(lvl=lvl)
+        super(Troglodyte, self).__init__(*args, **kwargs)
 
     def _handle_lvl_5_ability(self):
         swamp_purity = abilities.SwampPurity(6)
@@ -659,7 +660,7 @@ class Troglodyte(Card):
 
 
 class WoodElfArcher(Card):
-    def __init__(self, lvl=0):
+    def __init__(self, *args, **kwargs):
         self.card_type = constants.FOREST
         self.stars = 2
         self.wait = 2
@@ -669,7 +670,7 @@ class WoodElfArcher(Card):
         self.hp_inc = 20
         self.base_atk = 105
         self.atk_inc = 24
-        super(WoodElfArcher, self).__init__(lvl=lvl)
+        super(WoodElfArcher, self).__init__(*args, **kwargs)
 
     def _handle_lvl_5_ability(self):
         swamp_purity = abilities.SwampPurity(5)

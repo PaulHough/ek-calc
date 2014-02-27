@@ -46,6 +46,9 @@ class Fight():
         if isinstance(self.opp, DemonPlayer):
             self.dmg_done = self.opp_in_play[0].\
                 get_base_hp() - self.opp_in_play[0].hp
+            for card in self.player.cards:
+                if card.merit:
+                    self.dmg_done += 100
             self.dmg_per_min = self.dmg_done / self.cooldown
 
     def _handle_exiting_effects(self, card):

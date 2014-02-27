@@ -46,8 +46,13 @@ def handle_reports(reports):
 
 def create_new_players(deck, runes):
     player = Player(PLAYER_LVL)
-    for card, lvl in deck:
-        player.assign_card(card(lvl))
+    for val in deck:
+        merit = False
+        if len(val) == 3:
+            merit = True
+        card = val[0]
+        lvl = val[1]
+        player.assign_card(card(lvl, merit))
     for rune, lvl in runes:
         player.assign_rune(rune(lvl))
     demon_player = demons.DemonPlayer()

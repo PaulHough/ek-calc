@@ -9,9 +9,9 @@ player_deck = (
     (cards.HeadlessHorseman, 10),
     (cards.HeadlessHorseman, 10),
     (cards.HeadlessHorseman, 10),
-    (cards.WoodElfArcher, 10),
-    (cards.WoodElfArcher, 10),
-    (cards.WoodElfArcher, 10),
+    (cards.WoodElfArcher, 10, True),
+    (cards.WoodElfArcher, 10, True),
+    (cards.WoodElfArcher, 10, True),
 )
 
 player_runes = (
