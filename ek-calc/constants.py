@@ -5,6 +5,7 @@ AIR = 'air'
 ALL_ALLY_CARDS = 'all_ally_cards'
 ALL_ENEMY_CARDS = 'all_enemy_cards'
 ATK_BUFF = 'atk_buff'
+ATK_PERCENTBUFF = 'atk_percentbuff'
 ATK = 'atk'
 ATK_COND = 'atk_cond'
 ATK_PREVENTION = 'atk_prevention'
@@ -46,6 +47,7 @@ LACERATION = 'laceration'
 LEAF = 'leaf'
 LIGHTNING = 'lightning'
 LONGEST_WAIT_TIME = 'longest_wait_time'
+LORE = 'lore'
 MOUNTAIN = 'mountain'
 NO_HEALS = 'no_heals'
 NUM_OF_TARGETS = 'num_of_targets'
@@ -59,6 +61,7 @@ PLAGUE = 'plague'
 POISON = 'poison'
 REMAINING = 'remaining'
 RESURRECTION = 'resurrection'
+RESISTANCE = 'resistance'
 REVIVAL = 'revival'
 SACRIFICE = 'sacrifice'
 SEAL = 'seal'
@@ -77,6 +80,11 @@ VENOM = 'venom'
 IMMUNITY_EFFECT_TYPES = (
     ICE, LIGHTNING, TRAP, SEAL, SACRIFICE, EXILE, DESTROY, LACERATION, FIRE
 )
+
+RESISTANCE_EFFECT_TYPES = (
+    EXILE, DESTROY, TELEPORTATION
+)
+
 SPELL = (ICE, LIGHTNING, FIRE, BLOOD)
 DAMAGE_TO_HERO_EFFECT_TYPES = (ATK, ENEMY_HERO)
 PERSISTENT_EFFECTS = (BURN, SMOG, POISON, VENOM, SEAL)

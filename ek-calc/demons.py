@@ -146,7 +146,8 @@ class Mars(Demon):
         return [{
             constants.EFFECT_TYPE: destroy.effect_type,
             constants.DAMAGE: 0,
-            constants.TARGET: destroy.target
+            constants.TARGET: destroy.target,
+            constants.NUM_OF_TARGETS: destroy.num_of_targets
         }, {
             constants.EFFECT_TYPE: devils_curse.effect_type,
             constants.DAMAGE: devils_curse.get_effect(),

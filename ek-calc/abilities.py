@@ -177,6 +177,14 @@ class GroupMorale(Ability):
         return 15 * self.rank
 
 
+class GroupWarpath(Ability):
+    target = constants.ALL_ALLY_CARDS
+    effect_type = constants.ATK_PERCENTBUFF
+
+    def get_effect(self):
+        return 1 + 0.15 * self.rank
+
+
 class Healing(Ability):
     ability_type = constants.HEAL
     target = constants.CARD_LOWEST_HP_ALLY

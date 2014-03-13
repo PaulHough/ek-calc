@@ -19,6 +19,9 @@ class Rune():
     def get_triggering_conditions(self):
         raise NotImplementedError('Each rune must have a triggering condition')
 
+    def __repr__(self):
+        return self.__str__()
+
 
 class Leaf(Rune):
     def __init__(self, lvl):
@@ -43,9 +46,6 @@ class Leaf(Rune):
         }]
 
     def __str__(self):
-        return 'Leaf - Level: {}'.format(self.lvl)
-
-    def __repr__(self):
         return 'Leaf - Level: {}'.format(self.lvl)
 
 
@@ -75,5 +75,29 @@ class Revival(Rune):
     def __str__(self):
         return 'Revival - Level: {}'.format(self.lvl)
 
-    def __repr__(self):
-        return 'Revival - Level: {}'.format(self.lvl)
+
+class Lore(Rune):
+    def __init__(self, lvl):
+        super(Lore, self).__init__(lvl=lvl)
+        self.element = constants.FIRE
+        self.stars = 5
+        self.max_times = 4
+        self.name = constants.LORE
+
+    def get_triggering_conditions(self):
+        return [{
+            constants.TRIGGERING_CONDITION: constants.CARD_IN_CEMETARY,
+            constants.NUM_TO_ACTIVATE: 2,
+            constants.CARD_TYPE: constants.MOUNTAIN
+        }]
+
+    def get_effect(self):
+        group_warpath = abilities.GroupWarpath(self.lvl + 6)
+        return [{
+            constants.EFFECT_TYPE: group_warpath.effect_type,
+            constants.TARGET: group_warpath.target,
+            constants.EFFECT: group_warpath.get_effect(),
+        }]
+
+    def __str__(self):
+        return 'Lore - Level: {}'.format(self.lvl)
