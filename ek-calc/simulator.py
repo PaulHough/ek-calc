@@ -1,8 +1,9 @@
 import random
-from copy import deepcopy, copy
-
 import constants
+
+from copy import deepcopy, copy
 from demons import DemonPlayer
+from log import Logger
 
 
 class Fight():
@@ -40,8 +41,33 @@ class Fight():
             self._handle_attack()
             self._resolve_all_healths()
             self._undo_runes()
+##            self.log_turn()
+
             self.turn += 1
+
         self.fight_summary()
+
+    def log_turn(self):
+
+        demonHealth=0
+        if(len(self.opp_in_play) > 0):
+            demonHealth=self.opp_in_play[0].hp
+
+        Logger.log('Turn {}'.format(self.turn) +
+                   ': Player Health={}'.format(self.player.hp) +
+                    ' : Demon Health={}'.format(demonHealth))
+
+        Logger.log("Cards in Deck:")
+        for card in self.player_on_deck:
+            Logger.log(card.__str__())
+        Logger.log("Cards in Play:")
+        for card in self.player_in_play:
+            Logger.log(card.__str__())
+        Logger.log("Cards in Cemetery:")
+        for card in self.player_cemetery:
+            Logger.log(card.__str__())
+        Logger.log("\n")
+
 
     def _calc_cooldown(self):
         deck_cost = 0
@@ -237,7 +263,7 @@ class Fight():
                 self._destroy_card(card)
             else:
                 reflect_summary = card.handle_abilities_defense(dmg_summary)
-                self.card.hp -= self._handle_reflect_summary(reflect_summary)
+                card.hp -= self._handle_reflect_summary(reflect_summary)
 
     def _handle_damage_to_all(self, dmg_summary):
         if dmg_summary[constants.EFFECT_TYPE] in constants.PERSISTENT_EFFECTS:
@@ -459,13 +485,13 @@ class Fight():
             for card in self.player_cemetery:
                 if card.card_type is card_type:
                     count += 1
-            if count >= condition[constants.NUM_TO_ACTIVATE]:
+            if count > condition[constants.NUM_TO_ACTIVATE]:
                 return True
         else:
             for card in self.opp_cemetery:
                 if card.card_type is card_type:
                     count += 1
-            if count >= condition[constants.NUM_TO_ACTIVATE]:
+            if count > condition[constants.NUM_TO_ACTIVATE]:
                 return True
         return False
 

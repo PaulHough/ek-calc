@@ -35,13 +35,13 @@ class Card():
         return self.base_atk + self.atk_inc * self.lvl
 
     def resists_exile(self):
-        return self.immune or self.resistance
+        return (self.immune or self.resistance)
 
     def resists_destroy(self):
-        return self.immune or self.resistance
+        return (self.immune or self.resistance)
 
     def resists_teleportation(self):
-        return self.immune or self.resistance
+        return (self.immune or self.resistance)
 
     def add_effect(self, dmg_summary):
         if self.immune:
@@ -678,7 +678,7 @@ class GoblinCupid(Card):
 
     def _get_damage_summary(self):
         dmg = self.atk
-        if self.lvl == 10:
+        if self.lvl >= 10:
             dmg += self.atk * abilities.Concentration(8).get_effect()
         dmg_summary = [{
             constants.EFFECT_TYPE: constants.ATK,

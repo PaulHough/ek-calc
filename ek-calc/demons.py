@@ -33,7 +33,7 @@ class Demon(Card):
         super(Demon, self).__init__(lvl=10)
 
     def get_base_hp(self):
-        return 100000
+        return 10000000 ## TODO: The sim doesn't handle it well when the Demon dies.
 
     def _handle_lvl_5_ability(self):
         pass
