@@ -456,7 +456,7 @@ class Fight():
         elif summary[constants.EFFECT_TYPE] is constants.ATK_PERCENTBUFF:
             if self.player_turn:
                 for card in self.player_in_play:
-                    card.atk *= 1 + summary[constants.EFFECT]
+                    card.atk *= summary[constants.EFFECT]
         elif summary[constants.EFFECT_TYPE] is constants.HEAL:
             if self.player_turn:
                 for card in self.player_in_play:
