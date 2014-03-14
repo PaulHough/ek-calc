@@ -24,6 +24,8 @@ class Fight():
         self.index = 0
         self.player_cemetery = list()
         self.opp_cemetery = list()
+        self.player_runes_triggered = list()
+        self.opp_runes_triggered = list()
         self.sim_fight()
 
     def sim_fight(self):
@@ -37,6 +39,7 @@ class Fight():
             self._resolve_all_healths()
             self._handle_attack()
             self._resolve_all_healths()
+            self._undo_runes()
             self.turn += 1
         self.fight_summary()
 
@@ -216,6 +219,8 @@ class Fight():
     def _handle_heal(self, dmg_summary):
         if dmg_summary[constants.TARGET] is constants.CARD_LOWEST_HP_ALLY:
             self._handle_lowest_hp_for_heals(dmg_summary)
+        if dmg_summary[constants.TARGET] is constants.ALL_ALLY_CARDS:
+            self._handle_all_allies(dmg_summary)
 
     def _handle_random_damage(self, dmg_summary):
         num_of_targets = dmg_summary.get(constants.NUM_OF_TARGETS, 0)
@@ -407,6 +412,16 @@ class Fight():
             self.def_card = opp_in_play[self.index]
             self._damage_through_cards(dmg_summary, opp)
 
+    def _undo_all_allies(self, summary):
+        if summary[constants.EFFECT_TYPE] is constants.ATK_BUFF:
+            if self.player_turn:
+                for card in self.player_in_play:
+                    card.atk -= summary[constants.EFFECT]
+        elif summary[constants.EFFECT_TYPE] is constants.ATK_PERCENTBUFF:
+            if self.player_turn:
+                for card in self.player_in_play:
+                    card.atk /= 1 + summary[constants.EFFECT]
+
     def _handle_all_allies(self, summary):
         if summary[constants.EFFECT_TYPE] is constants.ATK_BUFF:
             if self.player_turn:
@@ -416,6 +431,18 @@ class Fight():
             if self.player_turn:
                 for card in self.player_in_play:
                     card.atk *= 1 + summary[constants.EFFECT]
+        elif summary[constants.EFFECT_TYPE] is constants.HEAL:
+            if self.player_turn:
+                for card in self.player_in_play:
+                    card.receive_heal(summary.get(constants.HEAL, 0))
+            else:
+                for card in self.opp_in_play:
+                    card.receive_heal(summary.get(constants.HEAL, 0))
+
+    def _undo_rune_effect(self, summary):
+        if summary[constants.TARGET] is constants.ALL_ALLY_CARDS:
+            self._undo_all_allies(summary)
+            return
 
     def _handle_rune_effect(self, summary):
         if summary[constants.TARGET] is constants.ALL_ALLY_CARDS:
@@ -454,10 +481,20 @@ class Fight():
                     constants.EXCEEDED_ROUNDS:
                 return self.turn > condition[constants.NUM_TO_ACTIVATE]
 
+    def _undo_runes(self):
+        if self.player_turn:
+            for rune in self.player_runes_triggered:
+                rune_effects = rune.get_effect()
+                for effect in rune_effects:
+                    self._undo_rune_effect(effect)
+
     def _handle_runes(self):
+        self.player_runes_triggered = list()
+        self.opp_runes_triggered = list()
         if self.player_turn:
             for rune in self.player.runes:
                 if self._rune_should_trigger(rune):
+                    self.player_runes_triggered.append(rune)
                     rune_effects = rune.get_effect()
                     for effect in rune_effects:
                         self._handle_rune_effect(effect)
@@ -465,6 +502,7 @@ class Fight():
         else:
             for rune in self.opp.runes:
                 if self._rune_should_trigger(rune):
+                    self.opp_runes_triggered.append(rune)
                     rune_effects = rune.get_effect()
                     for effect in rune_effects:
                         self._handle_rune_effect(effect)
