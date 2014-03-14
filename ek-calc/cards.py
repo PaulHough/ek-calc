@@ -73,7 +73,14 @@ class Card():
         pass
 
     def _get_damage_summary(self, *args, **kwargs):
-        pass
+        if self.prevention:
+            return list()
+        return [{
+            constants.EFFECT_TYPE: constants.ATK,
+            constants.DAMAGE: self.atk,
+            constants.TARGET: constants.CARD_ACROSS
+        }]
+
 
     def handle_bloodthirsty(self):
         pass
@@ -128,7 +135,6 @@ class Aranyani(Card):
         self.hp_inc = 36
         self.base_atk = 400
         self.atk_inc = 28
-        self.immune = False
         super(Aranyani, self).__init__(*args, **kwargs)
 
     def enter_effect(self):
@@ -144,8 +150,8 @@ class Aranyani(Card):
             constants.TARGET: healing.target
         }]
 
-    def _handle_lvl_10_ability(self, multiplier=1):
-        teleportation = abilities.Teleportation
+    def _handle_lvl_10_ability(self):
+        teleportation = abilities.Teleportation()
         return [{
             constants.EFFECT_TYPE: teleportation.effect_type,
             constants.TARGET: teleportation.target,
@@ -177,6 +183,97 @@ class Aranyani(Card):
 
     def __str__(self):
         return 'Aranyani - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
+
+
+class ArcticCephalid(Card):
+    def __init__(self, *args, **kwargs):
+        self.card_type = constants.TUNDRA
+        self.stars = 5
+        self.wait = 4
+        self.starting_wait = 4
+        self.cost = 16
+        self.base_hp = 1200
+        self.hp_inc = 30
+        self.base_atk = 350
+        self.atk_inc = 38
+        super(ArcticCephalid, self).__init__(*args, **kwargs)
+
+    def _get_reflect_summary(self, dmg_summary):
+        if dmg_summary[constants.EFFECT_TYPE] in constants.SPELL:
+            reflection = abilities.Reflection(7)
+            return [{
+                constants.EFFECT_TYPE: reflection.effect_type,
+                constants.DAMAGE: reflection.get_effect(),
+                constants.TARGET: reflection.target
+            }]
+        elif self.lvl >= 5 and \
+                dmg_summary[constants.EFFECT_TYPE] is constants.ATK:
+            dodge_chance = abilities.Dodge(8).get_effect()
+            self.hp -= dodge_chance * dmg_summary.get(constants.DAMAGE, 0)
+        else:
+            self.hp -= dmg_summary.get(constants.DAMAGE, 0)
+        return list()
+
+    def handle_bloodthirsty(self):
+        if self.lvl == 10:
+            bloodthirsty = abilities.Bloodthirsty(7)
+            self.atk += bloodthirsty.get_effect()
+
+    def __str__(self):
+        return 'Arctic Cephalid - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
+
+
+class Blackstone(Card):
+    def __init__(self, *args, **kwargs):
+        self.card_type = constants.MOUNTAIN
+        self.stars = 4
+        self.wait = 6
+        self.starting_wait = 6
+        self.cost = 14
+        self.base_hp = 1250
+        self.hp_inc = 26
+        self.base_atk = 295
+        self.atk_inc = 25
+        super(Blackstone, self).__init__(*args, **kwargs)
+
+    def _get_reflect_summary(self, dmg_summary):
+        if self.lvl == 10 and \
+                dmg_summary[constants.EFFECT_TYPE] in constants.SPELL:
+            reflection = abilities.Reflection(5)
+            return [{
+                constants.EFFECT_TYPE: reflection.effect_type,
+                constants.DAMAGE: reflection.get_effect(),
+                constants.TARGET: reflection.target
+            }]
+        else:
+            self.hp -= dmg_summary.get(constants.DAMAGE, 0)
+        return list()
+
+    def _handle_lvl_5_ability(self):
+        self.receive_heal(abilities.Rejuvenation(6).get_effect())
+
+    def _get_damage_summary(self):
+        if self.prevention:
+            return list()
+        if self.lvl >= 5:
+            self._handle_lvl_5_ability()
+        fire_god = abilities.FireGod(3)
+        return [{
+            constants.EFFECT_TYPE: fire_god.effect_type,
+            constants.DAMAGE: fire_god.get_effect(),
+            constants.TARGET: fire_god.target,
+            constants.REMAINING: None
+        }, {
+            constants.EFFECT_TYPE: constants.ATK,
+            constants.DAMAGE: self.atk,
+            constants.TARGET: constants.CARD_ACROSS
+        }]
+
+
+    def __str__(self):
+        return 'Blackstone - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
 
@@ -612,13 +709,15 @@ class HeadlessHorseman(Card):
 
     def _get_reflect_summary(self, dmg_summary):
         if dmg_summary[constants.EFFECT_TYPE] is constants.ATK:
-            dodge = abilities.Dodge(3).get_effect()
-            if dodge:
-                return list()
-        self.hp -= dmg_summary.get(constants.DAMAGE, 0)
+            dodge_chance = abilities.Dodge(3).get_effect()
+            self.hp -= dodge_chance * dmg_summary.get(constants.DAMAGE, 0)
+        else:
+            self.hp -= dmg_summary.get(constants.DAMAGE, 0)
         return list()
 
     def _get_damage_summary(self):
+        if self.prevention:
+            return list()
         dmg = self.atk
         if self.lvl >= 5:
             if self.first_attack:
@@ -631,8 +730,6 @@ class HeadlessHorseman(Card):
             constants.DAMAGE: dmg,
             constants.TARGET: constants.CARD_ACROSS
         }]
-        if self.prevention:
-            return list()
         return dmg_summary
 
     def __str__(self):
@@ -729,6 +826,49 @@ class Necromancer(Card):
 
     def __str__(self):
         return 'Necromancer - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
+
+
+class PolarBearborn(Card):
+    def __init__(self, *args, **kwargs):
+        self.card_type = constants.TUNDRA
+        self.stars = 4
+        self.wait = 4
+        self.starting_wait = 4
+        self.cost = 12
+        self.base_hp = 815
+        self.hp_inc = 18
+        self.base_atk = 260
+        self.atk_inc = 30
+        super(PolarBearborn, self).__init__(*args, **kwargs)
+
+    def _get_reflect_summary(self, dmg_summary):
+        if self.lvl == 10 and \
+                dmg_summary[constants.EFFECT_TYPE] is constants.ATK:
+            dodge_chance = abilities.Dodge(8).get_effect()
+            self.hp -= dodge_chance * dmg_summary.get(constants.DAMAGE, 0)
+        else:
+            self.hp -= dmg_summary.get(constants.DAMAGE, 0)
+        return list()
+
+    def _get_damage_summary(self):
+        if self.prevention:
+            return list()
+        dmg = self.atk
+        dmg += self.atk * abilities.Concentration(4).get_effect()
+        if self.lvl >= 5:
+            if self.first_attack:
+                dmg += abilities.Backstab(5).get_effect()
+                self.first_attack = False
+        dmg_summary = [{
+            constants.EFFECT_TYPE: constants.ATK,
+            constants.DAMAGE: dmg,
+            constants.TARGET: constants.CARD_ACROSS
+        }]
+        return dmg_summary
+
+    def __str__(self):
+        return 'Polar Bearborn - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
 
@@ -839,6 +979,64 @@ class SpitfireWorm(Card):
 
     def __str__(self):
         return 'Spitfire Worm - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
+
+
+class TaigaGeneral(Card):
+    def __init__(self, *args, **kwargs):
+        self.card_type = constants.TUNDRA
+        self.stars = 5
+        self.wait = 4
+        self.starting_wait = 4
+        self.cost = 15
+        self.base_hp = 1320
+        self.hp_inc = 43
+        self.base_atk = 365
+        self.atk_inc = 24
+        super(TaigaGeneral, self).__init__(*args, **kwargs)
+
+    def _handle_lvl_5_ability(self):
+        exile = abilities.Exile()
+        return [{
+            constants.EFFECT_TYPE: exile.effect_type,
+            constants.DAMAGE: 0,
+            constants.TARGET: exile.target
+        }]
+
+    def _handle_lvl_10_ability(self):
+        regeneration = abilities.Regeneration(7)
+        return [{
+            constants.EFFECT_TYPE: regeneration.effect_type,
+            constants.TARGET: regeneration.target,
+            constants.HEAL: regeneration.get_effect(),
+        }]
+
+    def _get_reflect_summary(self, dmg_summary):
+        if dmg_summary[constants.EFFECT_TYPE] in \
+                constants.MAGIC_SHIELD_EFFECTS:
+            dmg = 80
+            if dmg_summary[constants.DAMAGE] < 80:
+                dmg = dmg_summary[constants.DAMAGE]
+            self.hp -= dmg
+        else:
+            self.hp -= dmg_summary.get(constants.DAMAGE)
+        return list()
+
+    def _get_damage_summary(self):
+        dmg_summary = list()
+        if self.lvl >= 5:
+            dmg_summary = self._handle_lvl_5_ability()
+        for_dmg = {
+            constants.EFFECT_TYPE: constants.ATK,
+            constants.DAMAGE: self.atk,
+            constants.TARGET: constants.CARD_ACROSS
+        }
+        if not self.prevention:
+            dmg_summary.append(for_dmg)
+        return dmg_summary
+
+    def __str__(self):
+        return 'Taiga General - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
 

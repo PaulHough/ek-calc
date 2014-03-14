@@ -231,6 +231,15 @@ class Reflection(Ability):
         return 30 * self.rank
 
 
+class Regeneration(Ability):
+    ability_type = constants.HEAL
+    target = constants.ALL_ALLY_CARDS
+    effect_type = constants.HEAL
+
+    def get_effect(self):
+        return 25 * self.rank
+
+
 class Rejuvenation(Ability):
     ability_type = constants.HEAL
     target = constants.SELF
