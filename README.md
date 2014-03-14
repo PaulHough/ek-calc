@@ -15,7 +15,7 @@ Using this information it should be possible to optimize your deck based on the 
 
 The way the simulator is designed allows for additional cards to be created without modifying the mechanics simulator.  Each card should inheret from the base class ``Card``, properly implement the methods and define the parameters.  If done properly the simulator can use the card.  If you decide to add a card you'll need to ensure that it's abilities are available as well.
 
-Adding an ability is similar to adding a card.  Each ability should inheret from the base ``Ability`` class, properly implement the methods and define the parameters.  If done properly the simulator will know how the ability works with the card each card that uses it.
+Adding an ability is similar to adding a card.  Each ability should inheret from the base ``Ability`` class, properly implement the methods and define the parameters.  If done properly the simulator will know how the ability works with the each card that uses it.
 
 
 Requirements
@@ -26,7 +26,7 @@ Python 3.3+
 Install
 -----------------
 
-I have not yet packaged this project and registered it with PyPI - although I plan to in the future.  For now you'll need to clone the project and run the simulation manually.::
+I have not yet packaged this project and registered it with PyPI - although I plan to in the future.  For now you'll need to clone the project and run the simulation manually.
 
     $ git clone git@github.com:ricomoss/ek-calc.git
     
