@@ -1,5 +1,5 @@
 import random
-from copy import deepcopy
+from copy import deepcopy, copy
 
 import constants
 from demons import DemonPlayer
@@ -28,12 +28,16 @@ class Fight():
 
     def sim_fight(self):
         self._prep_cards()
-        while self.player.hp > 0 and self.opp.hp > 0:
+        while self.player.hp > 0 and self.opp.hp > 0 and \
+                (len(self.player.card_order) > 0 or
+                 len(self.player_on_deck) > 0 or
+                 len(self.player_in_play) > 0):
             self._prep_turn()
             self._handle_runes()
-            self._handle_attack()
-            self.turn += 1
             self._resolve_all_healths()
+            self._handle_attack()
+            self._resolve_all_healths()
+            self.turn += 1
         self.fight_summary()
 
     def _calc_cooldown(self):
@@ -71,6 +75,8 @@ class Fight():
             self.opp_cemetery.append(card)
 
     def _put_card_in_cemetery_from_play(self, card):
+        if card is self.def_card:
+            self.def_card = None
         if card in self.player_in_play:
             self.player_in_play.remove(card)
             if card.should_res:
@@ -214,16 +220,19 @@ class Fight():
     def _handle_random_damage(self, dmg_summary):
         num_of_targets = dmg_summary.get(constants.NUM_OF_TARGETS, 0)
         if self.player_turn:
-            possible_choices = deepcopy(self.opp_in_play)
+            possible_choices = copy(self.opp_in_play)
         else:
-            possible_choices = deepcopy(self.player_in_play)
+            possible_choices = copy(self.player_in_play)
         for target in range(0, num_of_targets):
             if len(possible_choices) == 0:
                 return
             card = random.choice(possible_choices)
             possible_choices.remove(card)
-            reflect_summary = card.handle_abilities_defense(dmg_summary)
-            self.card.hp -= self._handle_reflect_summary(reflect_summary)
+            if dmg_summary[constants.EFFECT_TYPE] is constants.DESTROY:
+                self._destroy_card(card)
+            else:
+                reflect_summary = card.handle_abilities_defense(dmg_summary)
+                self.card.hp -= self._handle_reflect_summary(reflect_summary)
 
     def _handle_damage_to_all(self, dmg_summary):
         if dmg_summary[constants.EFFECT_TYPE] in constants.PERSISTENT_EFFECTS:
@@ -283,10 +292,6 @@ class Fight():
             return
         if dmg_summary[constants.EFFECT_TYPE] is constants.EXILE:
             self._exile_card(self.def_card)
-            self.def_card = None
-            return
-        if dmg_summary[constants.EFFECT_TYPE] is constants.DESTROY:
-            self._destroy_card(self.def_card)
             self.def_card = None
             return
 
@@ -392,6 +397,7 @@ class Fight():
             if self.card.is_dead():
                 break
             self._resolve_damage_through_cards(dmg, def_hero)
+            self._resolve_all_healths()
 
     def _attack_with_card(self, opp, opp_in_play):
         dmg_summary = self.card.handle_abilities_offense()
@@ -406,6 +412,10 @@ class Fight():
             if self.player_turn:
                 for card in self.player_in_play:
                     card.atk += summary[constants.EFFECT]
+        elif summary[constants.EFFECT_TYPE] is constants.ATK_PERCENTBUFF:
+            if self.player_turn:
+                for card in self.player_in_play:
+                    card.atk *= 1 + summary[constants.EFFECT]
 
     def _handle_rune_effect(self, summary):
         if summary[constants.TARGET] is constants.ALL_ALLY_CARDS:

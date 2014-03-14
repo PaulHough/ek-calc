@@ -19,6 +19,7 @@ class Card():
         self.immune = False
         self.merit = merit
         self.effects = list()
+        self.resistance = False
 
     def get_base_hp(self):
         return self.base_hp + self.hp_inc * self.lvl
@@ -27,20 +28,20 @@ class Card():
         return list()
 
     def exit_effect(self):
-        self.__init__(self.lvl)
+        self.__init__(self.lvl, self.merit)
         return list()
 
     def _get_atk(self):
         return self.base_atk + self.atk_inc * self.lvl
 
     def resists_exile(self):
-        return self.immune
+        return self.immune or self.resistance
 
     def resists_destroy(self):
-        return self.immune
+        return self.immune or self.resistance
 
     def resists_teleportation(self):
-        return self.immune
+        return self.immune or self.resistance
 
     def add_effect(self, dmg_summary):
         if self.immune:
@@ -536,7 +537,63 @@ class FireDemon(Card):
         return dmg_summary
 
     def __str__(self):
-        return 'Fire Kirin - Level: {}  HP: {}  ATK: {}'.\
+        return 'Fire Demon - Level: {}  HP: {}  ATK: {}'.\
+            format(self.lvl, self.hp, self.atk)
+
+
+class GoblinCupid(Card):
+    def __init__(self, *args, **kwargs):
+        self.card_type = constants.SWAMP
+        self.stars = 3
+        self.wait = 2
+        self.starting_wait = 2
+        self.cost = 10
+        self.base_hp = 640
+        self.hp_inc = 27
+        self.base_atk = 210
+        self.atk_inc = 20
+        super(GoblinCupid, self).__init__(*args, **kwargs)
+
+        if self.lvl >= 5:
+            self._handle_lvl_5_ability()
+
+    def _get_reflect_summary(self, dmg_summary):
+        if self.hp > 0 and \
+                (self.resistance and dmg_summary[constants.EFFECT_TYPE] not in
+                 constants.RESISTANCE_EFFECT_TYPES):
+            if dmg_summary[constants.EFFECT_TYPE] is constants.ATK:
+                self.hp -= self._handle_lvl_0_ability(
+                    dmg_summary[constants.DAMAGE])
+            else:
+                self.hp -= dmg_summary[constants.DAMAGE]
+        return list()
+
+    def _handle_lvl_0_ability(self, dmg):
+        parry = abilities.Parry(5)
+        dmg_done = dmg - parry.get_effect()
+        if dmg_done > 0:
+            return dmg_done
+        return 0
+
+    def _handle_lvl_5_ability(self):
+        self.resistance = True
+        return
+
+    def _get_damage_summary(self):
+        dmg = self.atk
+        if self.lvl == 10:
+            dmg += self.atk * abilities.Concentration(8).get_effect()
+        dmg_summary = [{
+            constants.EFFECT_TYPE: constants.ATK,
+            constants.DAMAGE: dmg,
+            constants.TARGET: constants.CARD_ACROSS
+        }]
+        if self.prevention:
+            return list()
+        return dmg_summary
+
+    def __str__(self):
+        return 'Goblin Cupid - Level: {}  HP: {}  ATK: {}'.\
             format(self.lvl, self.hp, self.atk)
 
 
