@@ -23,6 +23,33 @@ class Rune():
         return self.__str__()
 
 
+class FireForge(Rune):
+    def __init__(self, lvl):
+        super(FireForge, self).__init__(lvl=lvl)
+        self.element = constants.FIRE
+        self.stars = 3
+        self.max_times = 4
+        self.name = constants.FIREFORGE
+
+    def get_triggering_conditions(self):
+        return [{
+            constants.TRIGGERING_CONDITION: constants.CARD_IN_CEMETARY,
+            constants.NUM_TO_ACTIVATE: 1,
+            constants.CARD_TYPE: constants.MOUNTAIN
+        }]
+
+    def get_effect(self):
+        counterattack = abilities.GroupCounterAttack(self.lvl + 3)
+        return [{
+            constants.EFFECT_TYPE: counterattack.effect_type,
+            constants.TARGET: counterattack.target,
+            constants.EFFECT: counterattack.get_effect(),
+        }]
+
+    def __str__(self):
+        return 'Fire Forge - Level: {}'.format(self.lvl)
+
+
 class Leaf(Rune):
     def __init__(self, lvl):
         super(Leaf, self).__init__(lvl=lvl)
@@ -47,33 +74,6 @@ class Leaf(Rune):
 
     def __str__(self):
         return 'Leaf - Level: {}'.format(self.lvl)
-
-
-class Revival(Rune):
-    def __init__(self, lvl):
-        super(Revival, self).__init__(lvl=lvl)
-        self.element = constants.AIR
-        self.stars = 3
-        self.max_times = 4
-        self.name = constants.REVIVAL
-
-    def get_triggering_conditions(self):
-        return [{
-            constants.TRIGGERING_CONDITION: constants.CARD_IN_CEMETARY,
-            constants.NUM_TO_ACTIVATE: 1,
-            constants.CARD_TYPE: constants.FOREST
-        }]
-
-    def get_effect(self):
-        group_morale = abilities.GroupMorale(self.lvl + 4)
-        return [{
-            constants.EFFECT_TYPE: group_morale.effect_type,
-            constants.TARGET: group_morale.target,
-            constants.EFFECT: group_morale.get_effect(),
-        }]
-
-    def __str__(self):
-        return 'Revival - Level: {}'.format(self.lvl)
 
 
 class Lore(Rune):
@@ -103,28 +103,29 @@ class Lore(Rune):
         return 'Lore - Level: {}'.format(self.lvl)
 
 
-class FireForge(Rune):
+class Revival(Rune):
     def __init__(self, lvl):
-        super(FireForge, self).__init__(lvl=lvl)
-        self.element = constants.FIRE
+        super(Revival, self).__init__(lvl=lvl)
+        self.element = constants.AIR
         self.stars = 3
         self.max_times = 4
-        self.name = constants.FIREFORGE
+        self.name = constants.REVIVAL
 
     def get_triggering_conditions(self):
         return [{
             constants.TRIGGERING_CONDITION: constants.CARD_IN_CEMETARY,
             constants.NUM_TO_ACTIVATE: 1,
-            constants.CARD_TYPE: constants.MOUNTAIN
+            constants.CARD_TYPE: constants.FOREST
         }]
 
     def get_effect(self):
-        counterattack = abilities.GroupCounterAttack(self.lvl + 3)
+        group_morale = abilities.GroupMorale(self.lvl + 4)
         return [{
-            constants.EFFECT_TYPE: counterattack.effect_type,
-            constants.TARGET: counterattack.target,
-            constants.EFFECT: counterattack.get_effect(),
+            constants.EFFECT_TYPE: group_morale.effect_type,
+            constants.TARGET: group_morale.target,
+            constants.EFFECT: group_morale.get_effect(),
         }]
 
     def __str__(self):
-        return 'Fire Forge - Level: {}'.format(self.lvl)
+        return 'Revival - Level: {}'.format(self.lvl)
+

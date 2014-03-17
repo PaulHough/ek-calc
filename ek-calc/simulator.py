@@ -1,9 +1,10 @@
 import random
 import constants
-
 from copy import deepcopy, copy
-from demons import DemonPlayer
+
 from log import Logger
+from demons import DemonPlayer
+
 
 
 class Fight():

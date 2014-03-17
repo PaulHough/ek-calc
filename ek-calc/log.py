@@ -7,3 +7,4 @@ class Logger:
     @staticmethod
     def log(text):
         logging.info(text)
+
