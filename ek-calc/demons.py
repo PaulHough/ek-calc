@@ -32,8 +32,8 @@ class Demon(Card):
         self.immune = True
         super(Demon, self).__init__(lvl=10)
 
-    def get_base_hp(self):
-        return 100000
+    def _get_base_hp(self):
+        return 10000000 ## TODO: The sim doesn't handle it well when the Demon dies.
 
     def _handle_lvl_5_ability(self):
         pass
@@ -46,7 +46,7 @@ class Demon(Card):
 
 
 class DarkTitan(Demon):
-    def _get_atk(self):
+    def _get_base_atk(self, base=None, inc=None):
         return 1800
 
     def _get_reflect_summary(self, dmg_summary):
@@ -88,7 +88,7 @@ class DarkTitan(Demon):
 
 
 class Deucalion(Demon):
-    def _get_atk(self, base=None, inc=None):
+    def _get_base_atk(self, base=None, inc=None):
         return 900
 
     def _get_reflect_summary(self, dmg_summary):
@@ -129,7 +129,7 @@ class Deucalion(Demon):
 
 
 class Mars(Demon):
-    def _get_atk(self, base=None, inc=None):
+    def _get_base_atk(self, base=None, inc=None):
         return 1200
 
     def _get_reflect_summary(self, dmg_summary):
@@ -173,7 +173,7 @@ class Mars(Demon):
 
 
 class Pandarus(Demon):
-    def _get_atk(self):
+    def _get_base_atk(self, base=None, inc=None):
         return 1500
 
     def _get_reflect_summary(self, dmg_summary):
@@ -219,7 +219,7 @@ class Pandarus(Demon):
 
 
 class PlagueOgryn(Demon):
-    def _get_atk(self):
+    def _get_base_atk(self, base=None, inc=None):
         return 1500
 
     def _get_reflect_summary(self, dmg_summary):
@@ -265,7 +265,7 @@ class PlagueOgryn(Demon):
 
 
 class SeaKing(Demon):
-    def _get_atk(self, base=None, inc=None):
+    def _get_base_atk(self, base=None, inc=None):
         return 1200
 
     def _get_reflect_summary(self, dmg_summary):

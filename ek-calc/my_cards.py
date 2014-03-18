@@ -5,6 +5,9 @@ import demons
 PLAYER_LVL = 25
 DEMON_CARD = demons.SeaKing
 
+## Format = (cards.CARDNAME, CARDLEVEL (0-10), [Optional] True/False - Whether the card is a merit card or not)
+## Example: (cards.WoodElfArcher, 10, True),
+
 player_deck = (
     (cards.HeadlessHorseman, 10),
     (cards.HeadlessHorseman, 10),
