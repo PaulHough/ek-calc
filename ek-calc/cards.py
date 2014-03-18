@@ -9,8 +9,8 @@ class Card():
         if lvl > 10 or lvl < 0:
             raise ValueError('Cards must have a level 0 to 10.')
         self.lvl = lvl
-        self.hp = self.get_base_hp()
-        self.atk = self._get_atk()
+        self.hp = self._get_base_hp()
+        self.atk = self._get_base_atk()
         self.should_res = False
         self.stunned = False
         self.prevention = False
@@ -21,7 +21,7 @@ class Card():
         self.effects = list()
         self.resistance = False
 
-    def get_base_hp(self):
+    def _get_base_hp(self):
         return self.base_hp + self.hp_inc * self.lvl
 
     def enter_effect(self):
@@ -31,7 +31,7 @@ class Card():
         self.__init__(self.lvl, self.merit)
         return list()
 
-    def _get_atk(self):
+    def _get_base_atk(self):
         return self.base_atk + self.atk_inc * self.lvl
 
     def resists_exile(self):
@@ -659,10 +659,7 @@ class GoblinCupid(Card):
                 (self.resistance and dmg_summary[constants.EFFECT_TYPE] not in
                  constants.RESISTANCE_EFFECT_TYPES):
             if dmg_summary[constants.EFFECT_TYPE] is constants.ATK:
-                self.hp -= self._handle_lvl_0_ability(
-                    dmg_summary[constants.DAMAGE])
-            else:
-                self.hp -= dmg_summary[constants.DAMAGE]
+                self.hp -= self._handle_lvl_0_ability(dmg_summary[constants.DAMAGE])
         return list()
 
     def _handle_lvl_0_ability(self, dmg):
