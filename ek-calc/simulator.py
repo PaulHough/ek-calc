@@ -79,7 +79,7 @@ class Fight():
     def fight_summary(self):
         if isinstance(self.opp, DemonPlayer):
             self.dmg_done = self.opp_in_play[0].\
-                get_base_hp() - self.opp_in_play[0].hp
+                _get_base_hp() - self.opp_in_play[0].hp
             for card in self.player.cards:
                 if card.merit:
                     self.dmg_done += 100
