@@ -42,7 +42,7 @@ class Fight():
             self._handle_attack()
             self._resolve_all_healths()
             self._undo_runes()
-            self.log_turn()
+##            self.log_turn()
 
             self.current_turn += 1
 
@@ -163,15 +163,15 @@ class Fight():
 
     def _handle_reflect_summary(self, reflect_summary):
         reflect_damage = 0
-        for reflect in reflect_summary:
-            dmg = reflect[constants.DAMAGE]
-            if reflect[constants.TARGET] == constants.CARD_ACROSS:
+        for reflect_effect in reflect_summary:
+            dmg = reflect_effect[constants.DAMAGE]
+            if reflect_effect[constants.TARGET] == constants.CARD_ACROSS:
                 reflect_damage += dmg
-            if reflect[constants.TARGET] == constants.CARD_ADJACENT:
+            if reflect_effect[constants.TARGET] == constants.CARD_ADJACENT:
                 reflect_damage += dmg
                 cards = self._get_adjacent_cards(self.attacking_card)
                 self._damage_adjacent_cards(dmg, cards)
-            if reflect[constants.TARGET] == constants.CARD_LOWEST_HP:
+            if reflect_effect[constants.TARGET] == constants.CARD_LOWEST_HP:
                 low_hp_card = self._get_lowest_hp(self.attacking_card)
                 low_hp_card.hp -= dmg
         return reflect_damage
@@ -448,7 +448,7 @@ class Fight():
         elif summary[constants.EFFECT_TYPE] is constants.ATK_PERCENTBUFF:
             if self.is_now_the_players_turn:
                 for card in self.player_cards_in_play:
-                    card.atk /= 1 + summary[constants.EFFECT]
+                    card.atk /= summary[constants.EFFECT]
 
     def _handle_all_allies(self, summary):
         if summary[constants.EFFECT_TYPE] is constants.ATK_BUFF:
@@ -458,7 +458,7 @@ class Fight():
         elif summary[constants.EFFECT_TYPE] is constants.ATK_PERCENTBUFF:
             if self.is_now_the_players_turn:
                 for card in self.player_cards_in_play:
-                    card.atk *= 1 + summary[constants.EFFECT]
+                    card.atk *= summary[constants.EFFECT]
         elif summary[constants.EFFECT_TYPE] is constants.HEAL:
             if self.is_now_the_players_turn:
                 for card in self.player_cards_in_play:
@@ -480,20 +480,20 @@ class Fight():
             self._handle_lowest_hp_for_dmg(summary)
             return
 
-    def _check_card_in_cemetary(self, condition):
+    def _check_number_of_cards_in_cemetery(self, condition):
         card_type = condition[constants.CARD_TYPE]
         count = 0
         if self.is_now_the_players_turn:
             for card in self.player_cards_in_cemetery:
                 if card.card_type is card_type:
                     count += 1
-            if count >= condition[constants.NUM_TO_ACTIVATE]:
+            if count > condition[constants.NUM_TO_ACTIVATE]:
                 return True
         else:
             for card in self.opponent_cards_in_cemetery:
                 if card.card_type is card_type:
                     count += 1
-            if count >= condition[constants.NUM_TO_ACTIVATE]:
+            if count > condition[constants.NUM_TO_ACTIVATE]:
                 return True
         return False
 
@@ -504,7 +504,7 @@ class Fight():
         for condition in triggering_conditions:
             if condition[constants.TRIGGERING_CONDITION] is \
                     constants.CARD_IN_CEMETARY:
-                return self._check_card_in_cemetary(condition)
+                return self._check_number_of_cards_in_cemetery(condition)
             if condition[constants.TRIGGERING_CONDITION] is \
                     constants.EXCEEDED_ROUNDS:
                 return self.current_turn > condition[constants.NUM_TO_ACTIVATE]

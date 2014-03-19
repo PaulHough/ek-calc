@@ -675,7 +675,7 @@ class GoblinCupid(Card):
 
     def _get_damage_summary(self):
         dmg = self.atk
-        if self.level == 10:
+        if self.level >= 10:
             dmg += self.atk * abilities.Concentration(8).get_effect()
         dmg_summary = [{
             constants.EFFECT_TYPE: constants.ATK,
