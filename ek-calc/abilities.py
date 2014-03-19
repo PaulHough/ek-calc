@@ -169,6 +169,14 @@ class ForestForce(Ability):
         return 25 + self.rank
 
 
+class GroupCounterAttack(Ability):
+    target = constants.ALL_ALLY_CARDS
+    effect_type = constants.CARD_ACROSS
+
+    def get_effect(self):
+        return 30 * self.rank
+
+
 class GroupMorale(Ability):
     target = constants.ALL_ALLY_CARDS
     effect_type = constants.ATK_BUFF
