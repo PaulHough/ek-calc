@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 import itertools
 import sys
-from copy import deepcopy, copy
+from copy import copy
 from datetime import datetime
 
 from player import Player
