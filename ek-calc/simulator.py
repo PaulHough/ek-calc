@@ -169,7 +169,7 @@ class Fight():
                 reflect_damage += dmg
             if reflect_effect[constants.TARGET] == constants.CARD_ADJACENT:
                 reflect_damage += dmg
-                cards = self._get_adjacent_cards(self.attacking_card)
+                cards = self._get_adjacent_cards(self.attacking_card, self.index_of_attacking_card)
                 self._damage_adjacent_cards(dmg, cards)
             if reflect_effect[constants.TARGET] == constants.CARD_LOWEST_HP:
                 low_hp_card = self._get_lowest_hp(self.attacking_card)
