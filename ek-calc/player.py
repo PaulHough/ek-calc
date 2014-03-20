@@ -14,13 +14,16 @@ class Player():
         self.cost = 0
 
     def _get_health(self):
-        bp = int(floor((self.level - 1)/10 + 1)*10) # What is bp? What is its relevance to health increases?
+        breaking_point = int(floor((self.level - 1)/10 + 1)*10) # breaking point for health increases
         base_inc = 60
         base_hp = 400
         base_hp_inc = 200
-        for i in range(0, floor(bp/10)):
+
+        for i in range(0, floor(breaking_point/10)):
             base_hp += (i + 3) * base_hp_inc
-        return base_hp + (base_inc + bp) * (self.level - (1 + bp - 10))
+
+        final_hp = base_hp + (base_inc + breaking_point) * (self.level - (1 + breaking_point - 10))
+        return final_hp
 
     def _total_cost_allowed(self):
 
