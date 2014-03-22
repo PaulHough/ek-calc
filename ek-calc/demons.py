@@ -5,8 +5,8 @@ from cards import Card
 
 
 class DemonPlayer(Player):
-    def __init__(self):
-        super(DemonPlayer, self).__init__(lvl=1000)
+    def __init__(self, level=1000):
+        super(DemonPlayer, self).__init__(level)
 
     def _num_of_cards_allowed(self):
         return 1
@@ -15,11 +15,11 @@ class DemonPlayer(Player):
         return 99
 
     def __repr__(self):
-        return 'Demon Hero - Level: {}  HP: {}'.format(self.lvl, self.hp)
+        return 'Demon Hero - Level: {}  HP: {}'.format(self.level, self.hp)
 
 
 class Demon(Card):
-    def __init__(self):
+    def __init__(self, level=10, merit=False):
         self.card_type = constants.DEMON
         self.starts = 5
         self.cost = 99
@@ -30,7 +30,7 @@ class Demon(Card):
         self.base_atk = 0
         self.atk_inc = 0
         self.immune = True
-        super(Demon, self).__init__(lvl=10)
+        super(Demon, self).__init__(level, merit)
 
     def _get_base_hp(self):
         return 10000000 ## TODO: The sim doesn't handle it well when the Demon dies.
