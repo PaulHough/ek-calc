@@ -48,15 +48,15 @@ def handle_reports(reports):
 def create_new_players(deck, runes):
     player = Player(PLAYER_LVL)
 
+    # new_card = (card, level[, is_merit])
     for new_card in deck:
-        card = new_card[0] # 0 = Card class
-        lvl = new_card[1] # 1 = Card level
-
-        card_is_a_merit_card = False
+        card = new_card[0]
+        lvl = new_card[1]
+        is_merit = False
         if len(new_card) == 3:
-            card_is_a_merit_card = new_card[2] # 2 = Card is or is not a merit card
+            is_merit = new_card[2]
 
-        player.assign_card(card(lvl, card_is_a_merit_card))
+        player.assign_card(card(lvl, is_merit))
 
     demon_player = demons.DemonPlayer()
     demon_player.assign_card(DEMON_CARD())
@@ -88,39 +88,39 @@ def run_simulation_with_decks(decks, reports, fight_count, runes=None):
         })
 
 
-def handle_simulations(fight_count_per_deck=1):
+def handle_simulations(cnt=1):
     decks = get_possible_decks()
     runes_set = get_possible_runes()
     reports = list()
-    possible_deck_combinations = len(decks) * len(runes_set)
 
+    combinations = len(decks) * len(runes_set)
     if len(runes_set) == 0:
-        possible_deck_combinations = len(decks)
+        combinations = len(decks)
 
     print('Calculated {} possible deck and rune combinations'.format(
-        possible_deck_combinations))
-    print('Running {} simulations.'.format(possible_deck_combinations * fight_count_per_deck))
+        combinations))
+    print('Running {} simulations.'.format(combinations * cnt))
 
     if len(runes_set) == 0:
-        run_simulation_with_decks(decks, reports, fight_count_per_deck)
+        run_simulation_with_decks(decks, reports, cnt)
     for runes in runes_set:
         print('Simulating for runes:')
         for rune in runes:
             print('\t{}'.format(rune))
-        run_simulation_with_decks(decks, reports, fight_count_per_deck, runes)
+        run_simulation_with_decks(decks, reports, cnt, runes)
 
     handle_reports(reports)
 
 
-def handle_single_deck_simulation(fight_count_for_this_deck=1):
+def handle_single_deck_simulation(cnt=1):
     damage_done = 0
     damage_per_minute = 0
-    for _ in itertools.repeat(None, fight_count_for_this_deck):
+    for _ in itertools.repeat(None, cnt):
         player, demon_player = create_new_players(player_deck, player_runes)
         fight = Fight(player, demon_player)
         damage_done += fight.damage_done
         damage_per_minute += fight.damage_per_minute
-    print('Average Damage Per Minute: {:.0f}'.format(damage_per_minute / fight_count_for_this_deck))
+    print('Average Damage Per Minute: {:.0f}'.format(damage_per_minute / cnt))
 
 
 if __name__ == '__main__':
@@ -129,8 +129,10 @@ if __name__ == '__main__':
         try:
             fight_count_per_deck = int(sys.argv[2])
         except ValueError:
-            err_msg = 'Expected an integer value. Received {} instead. Please provide an integer value representing the number of fights per deck you wish to simulate.'.format(
-                type(sys.argv[1]))
+            err_msg = 'Expected an integer value. Received {} instead.' \
+                ' Please provide an integer value representing the number of' \
+                ' fights per deck you wish to simulate.'.format(
+                    type(sys.argv[1]))
             raise TypeError(err_msg)
         handle_single_deck_simulation(fight_count_per_deck)
     elif len(sys.argv) < 3:
@@ -138,8 +140,10 @@ if __name__ == '__main__':
             try:
                 fight_count_per_deck = int(sys.argv[1])
             except ValueError:
-                err_msg = 'Expected an integer value. Received {} instead. Please provide an integer value representing the number of fights per deck you wish to simulate.'.format(
-                    type(sys.argv[1]))
+                err_msg = 'Expected an integer value. Received {} instead. ' \
+                    'Please provide an integer value representing the number' \
+                    ' of fights per deck you wish to simulate.'.format(
+                        type(sys.argv[1]))
                 raise TypeError(err_msg)
         else:
             fight_count_per_deck = 1

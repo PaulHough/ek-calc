@@ -11,7 +11,7 @@ class DemonPlayer(Player):
     def _num_of_cards_allowed(self):
         return 1
 
-    def _num_of_cost_allowed(self):
+    def _total_cost_allowed(self):
         return 99
 
     def __repr__(self):
@@ -33,12 +33,13 @@ class Demon(Card):
         super(Demon, self).__init__(level, merit)
 
     def _get_base_hp(self):
-        return 10000000 ## TODO: The sim doesn't handle it well when the Demon dies.
+        # TODO: The sim doesn't handle it well when the Demon dies.
+        return 10000000
 
-    def _handle_lvl_5_ability(self):
+    def _handle_level_5_ability(self):
         pass
 
-    def _handle_lvl_10_ability(self):
+    def _handle_level_10_ability(self):
         pass
 
     def add_effect(self, dmg_summary):
@@ -80,11 +81,11 @@ class DarkTitan(Demon):
 
     def __str__(self):
         return 'Dark Titan - Level: {}  HP: {}  ATK: {}'.format(
-            self.lvl, self.hp, self.atk, self.wait)
+            self.level, self.hp, self.atk, self.wait)
 
     def __repr__(self):
         return 'Dark Titan - Level: {}  HP: {}  ATK: {}'.format(
-            self.lvl, self.hp, self.atk, self.wait)
+            self.level, self.hp, self.atk, self.wait)
 
 
 class Deucalion(Demon):
@@ -121,11 +122,11 @@ class Deucalion(Demon):
 
     def __str__(self):
         return 'Deucalion - Level: {}  HP: {}  ATK: {}'.format(
-            self.lvl, self.hp, self.atk, self.wait)
+            self.level, self.hp, self.atk, self.wait)
 
     def __repr__(self):
         return 'Deucalion - Level: {}  HP: {}  ATK: {}'.format(
-            self.lvl, self.hp, self.atk, self.wait)
+            self.level, self.hp, self.atk, self.wait)
 
 
 class Mars(Demon):
@@ -165,11 +166,11 @@ class Mars(Demon):
 
     def __str__(self):
         return 'Mars - Level: {}  HP: {}  ATK: {}'.format(
-            self.lvl, self.hp, self.atk, self.wait)
+            self.level, self.hp, self.atk, self.wait)
 
     def __repr__(self):
         return 'Mars - Level: {}  HP: {}  ATK: {}'.format(
-            self.lvl, self.hp, self.atk, self.wait)
+            self.level, self.hp, self.atk, self.wait)
 
 
 class Pandarus(Demon):
@@ -211,11 +212,11 @@ class Pandarus(Demon):
 
     def __str__(self):
         return 'Pandarus - Level: {}  HP: {}  ATK: {}'.format(
-            self.lvl, self.hp, self.atk, self.wait)
+            self.level, self.hp, self.atk, self.wait)
 
     def __repr__(self):
         return 'Pandarus - Level: {}  HP: {}  ATK: {}'.format(
-            self.lvl, self.hp, self.atk, self.wait)
+            self.level, self.hp, self.atk, self.wait)
 
 
 class PlagueOgryn(Demon):
@@ -257,11 +258,11 @@ class PlagueOgryn(Demon):
 
     def __str__(self):
         return 'Plague Ogryn - Level: {}  HP: {}  ATK: {}'.format(
-            self.lvl, self.hp, self.atk, self.wait)
+            self.level, self.hp, self.atk, self.wait)
 
     def __repr__(self):
         return 'Plague Ogryn - Level: {}  HP: {}  ATK: {}'.format(
-            self.lvl, self.hp, self.atk, self.wait)
+            self.level, self.hp, self.atk, self.wait)
 
 
 class SeaKing(Demon):
@@ -299,8 +300,8 @@ class SeaKing(Demon):
 
     def __str__(self):
         return 'Sea King - Level: {}  HP: {}  ATK: {}'.format(
-            self.lvl, self.hp, self.atk, self.wait)
+            self.level, self.hp, self.atk, self.wait)
 
     def __repr__(self):
         return 'Sea King - Level: {}  HP: {}  ATK: {}'.format(
-            self.lvl, self.hp, self.atk, self.wait)
+            self.level, self.hp, self.atk, self.wait)
