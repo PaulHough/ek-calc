@@ -10,6 +10,7 @@ class Player():
         self.cards = list()
         self.shuffled_cards_in_deck = list()
         self.runes = list()
+        self.num_of_cards = 0
 
     def _get_health(self):
         # breaking point for health increases
@@ -43,22 +44,27 @@ class Player():
         return self._num_of_runes_allowed()
 
     def _num_of_cards_allowed_in_deck(self):
-        num_of_cards = 3
-        if self.level >= 3:
-            num_of_cards += 1
-        if self.level >= 5:
-            num_of_cards += 1
-        if self.level >= 10:
-            num_of_cards += 1
-        if self.level >= 20:
-            num_of_cards += 1
-        if self.level >= 30:
-            num_of_cards += 1
-        if self.level >= 35:
-            num_of_cards += 1
-        if self.level >= 40:
-            num_of_cards += 1
-        return num_of_cards
+        # Calculate number of cards only once
+        # Otherwise return value already calculated
+        if self.num_of_cards == 0:
+            self.num_of_cards = 3
+
+            if self.level >= 3:
+                self.num_of_cards += 1
+            if self.level >= 5:
+                self.num_of_cards += 1
+            if self.level >= 10:
+                self.num_of_cards += 1
+            if self.level >= 20:
+                self.num_of_cards += 1
+            if self.level >= 30:
+                self.num_of_cards += 1
+            if self.level >= 35:
+                self.num_of_cards += 1
+            if self.level >= 40:
+                self.num_of_cards += 1
+
+        return self.num_of_cards
 
     def _num_of_runes_allowed(self):
         if self.level < 50:
