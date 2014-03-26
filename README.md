@@ -60,11 +60,12 @@ This example would create a level 25 player to fight against Sea King.  The simu
     PLAYER_LVL = 25
     DEMON_CARD = demons.SeaKing
     
+    # (card, level[, ``is_merit``[, ``is_forced``]])
     player_deck = (
-        (cards.HeadlessHorseman, 10),
-        (cards.HeadlessHorseman, 10),
-        (cards.SkeletonKing, 5),
-        (cards.SkeletonKing, 8),
+        (cards.HeadlessHorseman, 10, False, True),
+        (cards.HeadlessHorseman, 10, False, True),
+        (cards.SkeletonKing, 5, True),
+        (cards.SkeletonKing, 8, True),
         (cards.WoodElfArcher, 6),
         (cards.WoodElfArcher, 10),
         (cards.DemonicImp, 8),
@@ -75,6 +76,8 @@ This example would create a level 25 player to fight against Sea King.  The simu
         (runes.Revival, 1),
         (runes.Leaf, 4),
     )
+
+Note the extra parameters given with the Headless Horseman and Skeleton King. These are available if the card is a merit card (``is_merit``) and if you want the card to be forced into the deck (``is_forced``).  Forcing cards into the deck will reduce simulation if you know some base cards you want in the deck.
 
 Once you've defined the above lists just run the simulator.:
 
