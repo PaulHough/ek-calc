@@ -77,7 +77,7 @@ def handle_reports(reports):
 def create_new_players(deck, runes):
     player = Player(PLAYER_LVL)
 
-    # new_card = (card, level, is_merit)
+    # new_card = (card, level[, is_merit])
     for new_card in deck:
         card = new_card[0]
         lvl = new_card[1]
