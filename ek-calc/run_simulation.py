@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 import itertools
 import sys
+import random
 from copy import copy
 from datetime import datetime
 
@@ -12,10 +13,38 @@ from my_cards import player_deck, player_runes, PLAYER_LVL, DEMON_CARD
 
 def get_possible_decks():
     decks = list([])
-    for r in range(1, len(player_deck) + 1):
-        if r > Player(PLAYER_LVL).get_num_of_cards_allowed():
+    deck_without_forced_cards = list([])
+    deck_with_forced_cards = list([])
+
+    for card in player_deck:
+        if len(card) >= 4:
+            card_is_forced = card[3]
+            if card_is_forced:
+                random_index = random.randrange(0, len(deck_with_forced_cards) + 1)
+                deck_with_forced_cards.insert(random_index, card)
+            else:
+                random_index = random.randrange(0, len(deck_without_forced_cards) + 1)
+                deck_without_forced_cards.insert(random_index, card)
+        else:
+            random_index = random.randrange(0, len(deck_without_forced_cards) + 1)
+            deck_without_forced_cards.insert(random_index, card)
+
+    for r in range(1, len(deck_without_forced_cards) + 1):
+        if (r + len(deck_with_forced_cards)) > \
+                Player(PLAYER_LVL).get_num_of_cards_allowed():
             continue
-        decks.extend(list(itertools.combinations(player_deck, r=r)))
+        decks.extend(list(itertools.combinations(deck_without_forced_cards, r=r)))
+
+    decks = [list(deck) for deck in decks]
+
+    for forced_card in deck_with_forced_cards:
+        for deck in decks:
+            random_index = random.randrange(0, len(deck) + 1)
+            deck.insert(random_index, forced_card)
+
+    if len(decks) < 1 and len(deck_with_forced_cards) > 0:
+        decks.append(deck_with_forced_cards)
+    
     return decks
 
 
@@ -48,12 +77,12 @@ def handle_reports(reports):
 def create_new_players(deck, runes):
     player = Player(PLAYER_LVL)
 
-    # new_card = (card, level[, is_merit])
+    # new_card = (card, level, is_merit)
     for new_card in deck:
         card = new_card[0]
         lvl = new_card[1]
         is_merit = False
-        if len(new_card) == 3:
+        if len(new_card) >= 3:
             is_merit = new_card[2]
 
         player.assign_card(card(lvl, is_merit))
