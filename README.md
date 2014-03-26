@@ -60,7 +60,7 @@ This example would create a level 25 player to fight against Sea King.  The simu
     PLAYER_LVL = 25
     DEMON_CARD = demons.SeaKing
     
-    # (card, level[, ``is_merit``[, ``is_forced``]])
+    # (card, level[, is_merit[, is_forced]])
     player_deck = (
         (cards.HeadlessHorseman, 10, False, True),
         (cards.HeadlessHorseman, 10, False, True),
