@@ -43,6 +43,7 @@ class Fight():
             self._undo_runes()
             # self.log_turn()
 
+            self.is_player_turn = (self.is_player_turn == False) # Sets value to be opposite of what it already is
             self.current_turn += 1
 
         self.create_fight_summary()
@@ -425,13 +426,11 @@ class Fight():
                 self.attacking_card = card
                 self._attack_with_card(
                     self.opponent, self.opponent_cards_in_play)
-            self.is_player_turn = False
         else:
             for index, card in enumerate(self.opponent_cards_in_play):
                 self.index_of_attacking_card = index
                 self.attacking_card = card
                 self._attack_with_card(self.player, self.player_cards_in_play)
-            self.is_player_turn = True
 
     def _is_in_play(self, card):
         for in_play in (
