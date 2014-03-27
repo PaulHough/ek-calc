@@ -11,6 +11,14 @@ import demons
 from my_cards import player_deck, player_runes, PLAYER_LVL, DEMON_CARD
 
 
+def trim_decks(decks):
+    for index, deck in enumerate(decks):
+        deck_cost = sum(
+            [card_info[0](card_info[1]).cost for card_info in deck])
+        if deck_cost > Player(PLAYER_LVL)._total_cost_allowed():
+            decks.pop(index)
+
+
 def get_possible_decks():
     decks = list([])
     deck_without_forced_cards = list([])
@@ -20,20 +28,24 @@ def get_possible_decks():
         if len(card) >= 4:
             card_is_forced = card[3]
             if card_is_forced:
-                random_index = random.randrange(0, len(deck_with_forced_cards) + 1)
+                random_index = random.randrange(
+                    0, len(deck_with_forced_cards) + 1)
                 deck_with_forced_cards.insert(random_index, card)
             else:
-                random_index = random.randrange(0, len(deck_without_forced_cards) + 1)
+                random_index = random.randrange(
+                    0, len(deck_without_forced_cards) + 1)
                 deck_without_forced_cards.insert(random_index, card)
         else:
-            random_index = random.randrange(0, len(deck_without_forced_cards) + 1)
+            random_index = random.randrange(
+                0, len(deck_without_forced_cards) + 1)
             deck_without_forced_cards.insert(random_index, card)
 
     for r in range(1, len(deck_without_forced_cards) + 1):
         if (r + len(deck_with_forced_cards)) > \
                 Player(PLAYER_LVL).get_num_of_cards_allowed():
             continue
-        decks.extend(list(itertools.combinations(deck_without_forced_cards, r=r)))
+        decks.extend(
+            list(itertools.combinations(deck_without_forced_cards, r=r)))
 
     decks = [list(deck) for deck in decks]
 
@@ -44,16 +56,33 @@ def get_possible_decks():
 
     if len(decks) < 1 and len(deck_with_forced_cards) > 0:
         decks.append(deck_with_forced_cards)
-    
+
+    trim_decks(decks)
     return decks
 
 
+def get_max_length(obj):
+    max_length = 0
+    for item in obj:
+        if len(item) > max_length:
+            max_length = len(item)
+    return max_length
+
+
 def get_possible_runes():
-    runes = list([])
+    all_runes = list([])
+    runes_allowed = Player(PLAYER_LVL).get_num_of_runes_allowed()
     for r in range(1, len(player_runes) + 1):
-        if r > Player(PLAYER_LVL).get_num_of_runes_allowed():
+        if r > runes_allowed:
             continue
-        runes.extend(list(itertools.permutations(player_runes, r=r)))
+        all_runes.extend(list(itertools.permutations(player_runes, r=r)))
+
+    max_length = get_max_length(all_runes)
+    runes = list([])
+    for rune_set in all_runes:
+        if len(rune_set) < max_length:
+            continue
+        runes.append(list(rune_set))
     return runes
 
 
@@ -69,15 +98,18 @@ def handle_reports(reports):
     if best_report['runes'] is not None:
         for i, rune in enumerate(best_report['runes']):
             print('\t{}. {}'.format(i + 1, rune))
+
     print('\nMaximum Damage Per Minute: {:.0f}'.format(best_report['dpm']))
-    print('Average Damage Done Per Fight: {:.0f}'.format(best_report['avg_dmg']))
-    print('Average Rounds Lasted Per Fight: {:.0f}'.format(best_report['avg_rounds']))
+    print('Average Damage Done Per Fight: {:.0f}'.format(
+        best_report['avg_dmg']))
+    print('Average Rounds Lasted Per Fight: {:.0f}'.format(
+        best_report['avg_rounds']))
 
 
 def create_new_players(deck, runes):
     player = Player(PLAYER_LVL)
 
-    # new_card = (card, level, is_merit)
+    # new_card = (card, level[, is_merit])
     for new_card in deck:
         card = new_card[0]
         lvl = new_card[1]
