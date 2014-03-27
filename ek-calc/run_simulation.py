@@ -12,12 +12,13 @@ from my_cards import player_deck, player_runes, PLAYER_LVL, DEMON_CARD
 
 
 def trim_decks(decks):
-    for index, deck in enumerate(decks):
+    trimmed_decks = copy(decks)
+    for deck in decks:
         deck_cost = sum(
             [card_info[0](card_info[1]).cost for card_info in deck])
         if deck_cost > Player(PLAYER_LVL)._total_cost_allowed():
-            decks.pop(index)
-    return decks
+            trimmed_decks.remove(deck)
+    return trimmed_decks
 
 
 def get_possible_decks():
