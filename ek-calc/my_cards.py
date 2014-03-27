@@ -3,6 +3,7 @@ import runes
 import demons
 
 PLAYER_LVL = 25
+# Demon Cards: Deucalion, DarkTitan, Mars, Pandarus, PlagueOgryn, SeaKing
 DEMON_CARD = demons.SeaKing
 
 ## Format = (cards.CARDNAME, CARDLEVEL (0-10),
