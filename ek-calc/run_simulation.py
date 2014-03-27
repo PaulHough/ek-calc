@@ -17,7 +17,7 @@ def trim_decks(decks):
             [card_info[0](card_info[1]).cost for card_info in deck])
         if deck_cost > Player(PLAYER_LVL)._total_cost_allowed():
             decks.pop(index)
-
+    return decks
 
 def get_possible_decks():
     decks = list([])
@@ -57,7 +57,7 @@ def get_possible_decks():
     if len(decks) < 1 and len(deck_with_forced_cards) > 0:
         decks.append(deck_with_forced_cards)
 
-    trim_decks(decks)
+    decks = trim_decks(decks)
     return decks
 
 
