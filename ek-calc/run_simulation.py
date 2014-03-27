@@ -19,6 +19,7 @@ def trim_decks(decks):
             decks.pop(index)
     return decks
 
+
 def get_possible_decks():
     decks = list([])
     deck_without_forced_cards = list([])
@@ -57,8 +58,7 @@ def get_possible_decks():
     if len(decks) < 1 and len(deck_with_forced_cards) > 0:
         decks.append(deck_with_forced_cards)
 
-    decks = trim_decks(decks)
-    return decks
+    return trim_decks(decks)
 
 
 def get_max_length(obj):
