@@ -497,6 +497,7 @@ class DemonicImp(Card):
         self.base_atk = 250
         self.atk_inc = 26
         super(DemonicImp, self).__init__(*args, **kwargs)
+        self.resistance = True
 
     def _get_reflect_summary(self, dmg_summary):
         if self.level >= 5 and \
@@ -506,15 +507,6 @@ class DemonicImp(Card):
         else:
             self.hp -= dmg_summary.get(constants.DAMAGE, 0)
         return list()
-
-    def resists_destroy(self):
-        return True
-
-    def resists_exile(self):
-        return True
-
-    def resists_teleportation(self):
-        return True
 
     def _handle_lvl_10_ability(self):
         self.should_res = abilities.Resurrection(6).get_effect()
@@ -646,8 +638,10 @@ class FireDemon(Card):
         self.hp_inc = 36
         self.base_atk = 350
         self.atk_inc = 32
-        self.immune = True
         super(FireDemon, self).__init__(*args, **kwargs)
+
+        if self.level >= 10:
+            self._handle_lvl_10_ability()
 
     def _get_reflect_summary(self, dmg_summary):
         if self.hp > 0 and dmg_summary[constants.EFFECT_TYPE] not in \
@@ -664,16 +658,19 @@ class FireDemon(Card):
         }
 
     def _handle_lvl_10_ability(self):
-        self.should_res = abilities.Resurrection(7).get_effect()
+        self.immune = True
 
     def _get_damage_summary(self):
+        dmg = self.atk
+        dmg += self.atk * abilities.Concentration(6).get_effect()
         dmg_summary = list()
+
         if self.level >= 5:
             dmg_summary.append(self._handle_lvl_5_ability())
-        concentration = abilities.Concentration(6)
+
         for_dmg = {
             constants.EFFECT_TYPE: constants.ATK,
-            constants.DAMAGE: self.atk * concentration.get_effect(),
+            constants.DAMAGE: dmg,
             constants.TARGET: constants.CARD_ACROSS
         }
         if not self.prevention:
