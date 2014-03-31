@@ -43,7 +43,8 @@ class Fight():
             self._undo_runes()
             # self.log_turn()
 
-            self.is_player_turn = (self.is_player_turn == False) # Sets value to be opposite of what it already is
+            # Sets value to be opposite of what it already is
+            self.is_player_turn = not self.is_player_turn
             self.current_turn += 1
 
         self.create_fight_summary()

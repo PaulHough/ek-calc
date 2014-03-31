@@ -225,6 +225,53 @@ class ArcticCephalid(Card):
             format(self.level, self.hp, self.atk)
 
 
+class ArmoredMantis(Card):
+    def __init__(self, *args, **kwargs):
+        self.card_type = constants.FOREST
+        self.stars = 3
+        self.wait = 4
+        self.starting_wait = 4
+        self.cost = 9
+        self.base_hp = 540
+        self.hp_inc = 39
+        self.base_atk = 125
+        self.atk_inc = 18
+        super(ArmoredMantis, self).__init__(*args, **kwargs)
+
+    def _handle_lvl_10_ability(self):
+        snipe = abilities.Snipe(7)
+        return {
+            constants.EFFECT_TYPE: snipe.effect_type,
+            constants.DAMAGE: snipe.get_effect(),
+            constants.TARGET: snipe.target
+        }
+
+    def _get_damage_summary(self):
+        snipe = abilities.Snipe(3)
+        dmg_summary = [{
+            constants.EFFECT_TYPE: snipe.effect_type,
+            constants.DAMAGE: snipe.get_effect(),
+            constants.TARGET: snipe.target
+        }]
+        atk = self.atk
+        if self.level >= 5:
+            atk = self.atk * abilities.Concentration(5).get_effect()
+        for_dmg = {
+            constants.EFFECT_TYPE: constants.ATK,
+            constants.DAMAGE: atk,
+            constants.TARGET: constants.CARD_ACROSS,
+        }
+        if self.level == 10:
+            dmg_summary.append(self._handle_lvl_10_ability())
+        if not self.prevention:
+            dmg_summary.append(for_dmg)
+        return dmg_summary
+
+    def __str__(self):
+        return 'Armored Mantis - Level: {}  HP: {}  ATK: {}'.\
+            format(self.level, self.hp, self.atk)
+
+
 class Blackstone(Card):
     def __init__(self, *args, **kwargs):
         self.card_type = constants.MOUNTAIN
