@@ -35,13 +35,13 @@ class Card():
         return self.base_atk + self.atk_inc * self.level
 
     def resists_exile(self):
-        return (self.immune or self.resistance)
+        return self.immune or self.resistance
 
     def resists_destroy(self):
-        return (self.immune or self.resistance)
+        return self.immune or self.resistance
 
     def resists_teleportation(self):
-        return (self.immune or self.resistance)
+        return self.immune or self.resistance
 
     def add_effect(self, dmg_summary):
         if self.immune:

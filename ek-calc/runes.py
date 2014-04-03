@@ -33,7 +33,7 @@ class FireForge(Rune):
 
     def get_triggering_conditions(self):
         return [{
-            constants.TRIGGERING_CONDITION: constants.CARD_IN_CEMETARY,
+            constants.TRIGGERING_CONDITION: constants.CARD_IN_CEMETERY,
             constants.NUM_TO_ACTIVATE: 1,
             constants.CARD_TYPE: constants.MOUNTAIN
         }]
@@ -86,7 +86,7 @@ class Lore(Rune):
 
     def get_triggering_conditions(self):
         return [{
-            constants.TRIGGERING_CONDITION: constants.CARD_IN_CEMETARY,
+            constants.TRIGGERING_CONDITION: constants.CARD_IN_CEMETERY,
             constants.NUM_TO_ACTIVATE: 2,
             constants.CARD_TYPE: constants.MOUNTAIN
         }]
@@ -113,7 +113,7 @@ class Revival(Rune):
 
     def get_triggering_conditions(self):
         return [{
-            constants.TRIGGERING_CONDITION: constants.CARD_IN_CEMETARY,
+            constants.TRIGGERING_CONDITION: constants.CARD_IN_CEMETERY,
             constants.NUM_TO_ACTIVATE: 1,
             constants.CARD_TYPE: constants.FOREST
         }]

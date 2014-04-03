@@ -519,7 +519,7 @@ class Fight():
         triggering_conditions = rune.get_triggering_conditions()
         for condition in triggering_conditions:
             if condition[constants.TRIGGERING_CONDITION] is \
-                    constants.CARD_IN_CEMETARY:
+                    constants.CARD_IN_CEMETERY:
                 return self._check_number_of_cards_in_cemetery(condition)
             if condition[constants.TRIGGERING_CONDITION] is \
                     constants.EXCEEDED_ROUNDS:
